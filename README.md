@@ -112,4 +112,4 @@ The JSON file must be formatted as such:
 - download_complete: a list of the paths to a folder in your repo that the installer will zip whole and download
 - download_subdirectories: a list of the paths to a folder for which the installer will zip and download its subdirectories individually
 
-Optionally, you can convert the app to a Windows executable using pyinstaller or other similar methods. This will alleviate the need for your users to install Python, but heads up - without a Windows developer license with which to sign the app, your EXE will almost certainly get flagged as malware by Windows Defender. If you know of a way to avoid this, please let me know!
+Optionally, you can convert the app to a Windows executable using pyinstaller or other similar methods. This will alleviate the need for your users to install Python, but heads up - without a Windows developer license to properly sign the app, your EXE will almost certainly get flagged as malware by Windows Defender. If you know of a way to avoid this, please let me know!
