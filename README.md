@@ -32,19 +32,19 @@ The **updater's "Download New Content"** sync allows for quickly grabbing the la
 
 The **updater's "Full Sync"** sync does the same as above, but instead of looking at changes (Git commits) since your last sync date, it looks at the entire history of changes.
 
-The **updater's "Deep Scan"** will identify stray files in your textures directory that may be causing issues. With PS2 texture replacement, no two files can have the same name anywhere across the the entire replacements folder or any of its subfolders. The file **names** are all that matter to the emulator. The emulator will use the first "file.png" it finds, and will ignore the rest of the files with that name. The Deep Scan compares the directory tree of the local installation versus that of the Github repository. If it finds any files/paths that exist locally but not in Github, it will offer to delete them. Using the Deep Scan combined with the Full Sync will ensure your local textures are perfectly in sync with the project's latest version and that there are no extraneous files that could cause issues.
+The **updater's "Deep Scan"** will identify stray files in your textures directory that may be causing issues. With PS2 texture replacement, no two files can have the same name anywhere across the the entire `replacements` folder or any of its subfolders. The file **names** are all that matter to the emulator. The emulator will use the first "file.png" it finds, and will ignore the rest of the files with that name. The Deep Scan compares the directory tree of the local installation versus that of the Github repository. If it finds any files/paths that exist locally but not in Github, it will offer to delete them. Using the Deep Scan combined with the Full Sync will ensure your local textures are perfectly in sync with the project's latest version and that there are no extraneous files that could cause issues.
 
 <br>
 
 ## How it Handles User-Custom Textures <a name="custom-textures"></a>
 
-One great thing about PS2 modding is that it's very easy for users to customize the textures for their own installation. For example, in the NCAA NEXT mod, a user can use the ESPN logo in the scorebug instead of the mod's default NCAA NEXT logo, or they can use a different helmet texture for their favorite team's home uniform. These changes are easy to make and only require the user puts the desired new texture into the replacements folder and rename or remove the mod's default replacement texture (because remember, no two textures can have the same name).
+One great thing about PS2 modding is that it's very easy for users to customize the textures for their own installation. For example, in the NCAA NEXT mod, a user can use the ESPN logo in the scorebug instead of the mod's default NCAA NEXT logo, or they can use a different helmet texture for their favorite team's home uniform. These changes are easy to make and only require the user puts the desired new texture into the `replacements` folder and rename or remove the mod's default replacement texture (because remember, no two textures can have the same name).
 
 This app was built with this in mind! It has two special features that make it great for modders:
 
 1. It completely ignores anything in the 'user-customs' folder. Put all of your custom textures and/or DLC in this folder. The updater tool will never try to update or delete them.
 
-2. It recognizes disabled textures (filenames prepended with a dash "-", Eg. "-file.png") and won't try to download them again. It will even update the disabled/prepended file to the latest version!
+2. It recognizes disabled textures (filenames prepended with a dash "-", Eg. `-file.png`) and won't try to download them again. It will even update the disabled/prepended file to the latest version!
 
 **IMPORTANT**: To utilize these features you must A) **put all of your custom and DLC textures in the 'user-customs' folder** (putting it anywhere else will result in it being deleted or changed to the mod default) and B) for every default mod texture for which you have a custom texture, **leave the default texture in place** (don't remove or move it) **AND prepend the filename name with a dash** to disable it. Eg. if it was named `3a30272f374c5d47.png`, change the name to `-3a30272f374c5d47.png`. Now, because it is not the specific filename that the emulator is looking for, it's disabled; it doesn't exist as far as the emulator can tell. However, the updater tools still knows exactly what it is!
 
