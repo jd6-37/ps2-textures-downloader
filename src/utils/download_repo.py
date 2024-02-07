@@ -252,7 +252,15 @@ if os.path.exists(slus_folder_path) and os.path.isdir(slus_folder_path):
 
 
 
+# Get the current time in UTC timezone
+utc_now = datetime.utcnow()
+utc_now = utc_now.replace(tzinfo=pytz.utc)
 
+# Format the time as a string
+formatted_time = utc_now.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+# Print the current time in UTC
+print("Current time in UTC:", formatted_time)
 
 
 
