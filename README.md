@@ -11,7 +11,7 @@
 - [Forking and Using for Your Project](#forking)
 - [License](#license)
 
-<br><br>
+<br>
 
 ## Introduction <a name="introduction"></a>
 
