@@ -114,7 +114,7 @@ The JSON file must be formatted as such:
 
 Optionally, you can convert the app to a Windows executable using pyinstaller or other similar methods. This will alleviate the need for your users to install Python, but heads up - without a Windows developer license to properly sign the app, your EXE will almost certainly get flagged as malware by Windows Defender. If you know of a way to avoid this, please let me know!
 
-# LICENSE & PERMISSIONS
+## LICENSE & PERMISSIONS
 
 PS2 Emulator Replacement Textures Installer and Updater © 2024 by JD6-37 is licensed under [CC BY-NC 4.0](http://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1) 
 
