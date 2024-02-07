@@ -92,7 +92,7 @@ Closing the window or pressing Ctrl + c will terminate the app.
 
 ## For Mod Teams - Using this Tool for Your Project <a name="forking"></a>
 
-This app was created by an team member for their project, but it is open-source and can be used for other PS2 texture-replacement mod projects. Feel free to fork the repo, customize it for your own project, and share the customized app with your community.
+This app was created by a mod team member for their team's project, but it is open-source and can be used for other PS2 texture-replacement mod projects. Feel free to fork the repo, customize it for your own project, and share the customized app with your community.
 
 #### REPO CONFIG SETTINGS
 
