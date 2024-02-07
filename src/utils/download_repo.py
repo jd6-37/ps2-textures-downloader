@@ -41,22 +41,28 @@ api_url = f"https://api.github.com/repos/{github_repo_url}/commits?sha={branch_n
 headers = {"Authorization": f"Bearer {github_token}"}
 
 
-print()
-print(github_repo_url)
-print()
-print(api_url)
-print()
-print(headers)
-print()
-print()
+if debug_mode == 'True':
+    print()
+    print(github_repo_url)
+    print()
+    print(api_url)
+    print()
+    print(headers)
+    print()
+    print()
 # Function to grab a list of directories inside a particular directory
 def get_subdirectory_names(api_url, headers, local_directory, subdirectory):
     selected_directories = []
     content_url = f"https://api.github.com/repos/{github_repo_url}/contents/{subdirectory}?ref={branch_name}"
-    print()
-    print(content_url)
-    print()
+    if debug_mode == 'True':
+        print()
+        print(content_url)
+        print()
     content_response = requests.get(content_url, headers=headers)
+    if debug_mode == 'True':
+        print()
+        print(content_response)
+        print()
 
     if content_response.status_code == 200:
         content_data = content_response.json()
