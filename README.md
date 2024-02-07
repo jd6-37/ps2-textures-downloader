@@ -2,8 +2,8 @@
 
 ## Table of Contents
 - [Overview](#introduction)
-  - [Installer](#introduction--installer)
-  - [Updater](#introduction--updater)
+  - [Mod Installer](#introduction--installer)
+  - [Mod Updater](#introduction--updater)
 - [Handling User-Custom Textures](#custom-textures)
 - [Installation](#installation)
   - [Option 1: EXE](#installation--exe)
@@ -20,11 +20,11 @@ For users of the mod, downloading multi-GB zip files and keeping things updated 
 1. An INSTALLER for the first-time download and setup
 2. An UPDATER - a download/sync tool for post-installation updates
 
-**INSTALLER**  <a name="introduction--installer"></a>
+**MOD INSTALLER**  <a name="introduction--installer"></a>
 
 The **installer** ("First Time Setup") breaks up the multi-GBs of files into multiple smaller zip files and downloads them individually (and automatically extracts them). If you download the source.zip directly from Github, it will come as a single massive zip file, which can cause issues of failed downloads and corrupted archives. Additionally, the installer will also put the textures in the proper location (after you point it to your emualator's textures folder - Eg. C:\PCSX2\textures).
 
-**UPDATER** <a name="introduction--updater"></a>
+**MOD UPDATER** <a name="introduction--updater"></a>
 
 The **updater's "Download New Content"** sync allows for quickly grabbing the latest changes or additions to the project that have been published to Github. It is better than downloading a zip file of updates because A) it only downloads what you don't have (or don't have the latest version of), B) it's able to move/rename files instead of downloading them, and C) it's able to delete files that have been deleted from the project – something a zip download can never do. It does all of this by means of the Github API and is able to, essentially, follow along with the changes the team makes to the project. Also, it uses the same file hashing comparison that Git/Github uses to know if your local file is the same as the one in Github. This is much more accurate than other methods such as comparing modified dates. 
 
