@@ -134,6 +134,10 @@ The JSON file must be formatted as such:
 
 Optionally, you can convert the app to a Windows executable using pyinstaller or other similar methods. This will alleviate the need for your users to install Python, but heads up - without a Windows developer license to properly sign the app, your EXE will almost certainly get flagged as malware by Windows Defender. If you know of a way to avoid this, please let me know!
 
+#### USER-CUSTOMS FOLDER
+
+To make use of the features discussed above about user-custom textures, there must be a `user-customs` folder in the root of your `replacements` folder. It can't reside anywhere else. 
+
 <br>
 
 ## LICENSE & PERMISSIONS <a name="license"></a>
