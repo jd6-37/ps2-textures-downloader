@@ -11,7 +11,7 @@ import pytz
 from urllib.parse import urljoin, quote
 
 # Import helper functions
-from helpers import load_config_new, ConfigManager, remove_empty_folders, check_rate_limits, localize_reset_timestamp
+from helpers import load_config_new, ConfigManager, remove_empty_folders, check_rate_limits, localize_reset_timestamp, get_and_print_local_time, format_time_difference, get_current_time
 
 
 config_manager = ConfigManager()
@@ -45,15 +45,53 @@ def get_repo_contents(owner, repo, subdirectory='', branch_name='main', page=1, 
     url = f'https://api.github.com/repos/{owner}/{repo}/contents/{subdirectory}?ref={branch_name}&page={page}&per_page={per_page}'
     headers = {'Authorization': f'token {github_token}'}
     response = requests.get(url, headers=headers)
-    
+
     if response.status_code != 200:
+        # Handle error as needed
         print(response.json())
-        print(f"\nEROR: Unable to fetch repository contents. Status code: {response.status_code}. \nAPI rate limit probably exceeded. Try again later. The limit resets every hour. You can see the exact reset time above at the beginning of this output.\n")
-        print("Hasta la vista, baby.\n")
+        print(f"\nERROR: Unable to fetch repository contents. Status code: {response.status_code}. \nAPI rate limit probably exceeded. Try again later. The limit resets every hour. You can see the exact reset time above at the beginning of this output.\n")
+        print("Terminating the process. Hasta la vista, baby.\n")
         sys.exit(1)
         sys.stdout.flush()  # Force flush the output
         return None
-    return response.json()
+
+    rate_limit = int(response.headers.get('X-RateLimit-Limit', 0))
+    used_limit = int(response.headers.get('X-RateLimit-Used', 0))
+    remaining_limit = int(response.headers.get('X-RateLimit-Remaining', 0))
+    reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
+    # maths
+    if rate_limit > 0:
+        rate_limit_percentage_used = (used_limit / rate_limit) * 100
+    else:
+        rate_limit_percentage_used = 0
+
+    print(rate_limit_percentage_used)
+    if remaining_limit <= 50:
+        pause_time = reset_time - int(time.time()) + 10
+        print(f"API rate limit reached. Pausing until the limit resets in {pause_time // 60} minutes ({datetime.utcfromtimestamp(reset_time + 10).strftime('%I:%M %p UTC')}). Leave this window open. The scan will automatically continue where it left off.\n")
+        sys.stdout.flush()  # Force flush the output
+        time.sleep(pause_time)
+        print(f"Limit reset. Continuing process...\n")
+    elif rate_limit_percentage_used >= 10 and rate_limit_percentage_used <= 99.9 and rate_limit_percentage_used % 1 == 0:
+        if rate_limit_percentage_used not in printed_statements:
+            print(f"At {int(rate_limit_percentage_used)}% of the hourly API rate limit.")
+            sys.stdout.flush()  # Force flush the output
+            printed_statements.add(rate_limit_percentage_used)
+
+    content = response.json()
+
+    # Check if there are more pages
+    link_header = response.headers.get('Link')
+    if link_header and 'rel="next"' in link_header:
+        # Extract the next page URL
+        next_page_url = link_header.split(';')[0][1:-1]
+        # Recursive call to get the next page content
+        next_page_content = get_repo_contents(owner, repo, subdirectory, branch_name, page + 1, per_page)
+        # Combine the current page content with the next page content
+        content.extend(next_page_content)
+
+    return content
+
 
 def remove_leading_dots(path):
     parts = path.split(os.path.sep)
@@ -368,6 +406,10 @@ for var_name in required_variables:
 
 
 print()  # Add a line break 
+# Print the current time
+get_and_print_local_time()
+# Get the starting time to calculate the duration later
+start_time = get_current_time()
 print()  # Add a line break 
 print("#######################################################################")
 print("#                                                                     #")
@@ -506,4 +548,13 @@ print("#    (that already existed and got ignored with this scan) to       #")
 print("#       ensure their hashes match and they are identical.           #")
 print("#                                                                   #")
 print("#####################################################################")
+print()
+# Print the current time
+get_and_print_local_time()
+# Get the end time and calculate the duration
+end_time = get_current_time()
+print()
+formatted_time = format_time_difference(start_time, end_time)
+print(f"The operation took {formatted_time}")
+print()
 sys.stdout.flush()  # Force flush the output

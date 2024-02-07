@@ -11,7 +11,7 @@ import time
 import pytz
 
 # Import functions
-from helpers import ConfigManager, check_rate_limits, localize_reset_timestamp
+from helpers import ConfigManager, check_rate_limits, localize_reset_timestamp, get_and_print_local_time
 
 # Number of concurrent downloads
 semaphore = asyncio.Semaphore(2) 

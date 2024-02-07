@@ -276,3 +276,48 @@ def localize_reset_timestamp(limit_reset_timestamp):
     local_time_string = f"{reset_time_local_str} {timezone_abbreviation}"
 
     return local_time_string
+
+def get_current_time():
+    """Get the current time in the user's timezone (with a fallback to UTC) and return it in time format"""
+    try:
+        # Try to get the local timezone of the user
+        user_timezone = get_localzone()
+    except Exception as e:
+        print(f"Error: {e}")
+        # Fallback to UTC if unable to determine the user's timezone
+        user_timezone = pytz.utc
+
+    # Get the current time in the user's timezone or UTC
+    current_time = datetime.now(user_timezone)
+
+    return current_time
+
+def get_and_print_local_time():
+    """Get the current time in the user's timezone (with a fallback to UTC) and return a print string"""
+    # Use the already defined get_current_time function
+    current_time = get_current_time()
+
+    # Get the timezone abbreviation (e.g., CET, ET)
+    timezone_abbreviation = current_time.strftime('%Z')
+
+    current_time_str = current_time.strftime('%Y-%m-%d %H:%M:%S') 
+
+    local_time_string = f"{current_time_str} {timezone_abbreviation}"
+
+    print("\nCurrent time:", local_time_string)
+
+
+def format_time_difference(start_time, end_time):
+    time_difference = end_time - start_time
+
+    hours, remainder = divmod(time_difference.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    formatted_time = ""
+    if hours > 0:
+        formatted_time += f"{hours} hr "
+    if minutes > 0 or hours == 0:
+        formatted_time += f"{minutes} min "
+    formatted_time += f"{seconds} sec"
+
+    return formatted_time
