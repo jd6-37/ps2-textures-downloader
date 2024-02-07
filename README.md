@@ -35,6 +35,8 @@ The **updater's "Full Sync"** sync does the same as above, but instead of lookin
 
 The **updater's "Deep Scan"** will identify stray files in your textures directory that may be causing issues. With PS2 texture replacement, no two files can have the same name anywhere across the the entire replacements folder or any of its subfolders. The file **names** are all that matter to the emulator. The emulator will use the first "file.png" it finds, and will ignore the rest of the files with that name. The Deep Scan compares the directory tree of the local installation versus that of the Github repository. If it finds any files/paths that exist locally but not in Github, it will offer to delete them. Using the Deep Scan combined with the Full Sync will ensure your local textures are perfectly in sync with the project's latest version and that there are no extraneous files that could cause issues.
 
+<br>
+
 ## How it Handles User-Custom Textures <a name="custom-textures"></a>
 
 One great thing about PS2 modding is that it's very easy for users to customize the textures for their own installation. For example, in the NCAA NEXT mod, a user can use the ESPN logo in the scorebug instead of the mod's default NCAA NEXT logo, or they can use a different helmet texture for their favorite team's home uniform. These changes are easy to make and only require the user puts the desired new texture into the replacements folder and rename or remove the mod's default replacement texture (because remember, no two textures can have the same name).
@@ -46,6 +48,8 @@ This app was built with this in mind! It has two special features that make it g
 2. It recognizes disabled textures (filenames prepended with a dash "-", Eg. "-file.png") and won't try to download them again. It will even update the disabled/prepended file to the latest version!
 
 **IMPORTANT**: To utilize these features you must A) **put all of your custom and DLC textures in the 'user-customs' folder** (putting it anywhere else will result in it being deleted or changed to the mod default) and B) for every default mod texture for which you have a custom texture, **leave the default texture in place** (don't remove or move it) **AND prepend the filename name with a dash** to disable it. Eg. if it was named `3a30272f374c5d47.png`, change the name to `**-**3a30272f374c5d47.png`. Now, because it is not the specific filename that the emulator is looking for, it's disabled; it doesn't exist as far as the emulator can tell. However, the updater tools still knows exactly what it is!
+
+<br>
 
 ## Installing and Using this App <a name="installation"></a>
 
@@ -63,7 +67,7 @@ NOTE: You will most likely be warned by Windows Defender about malware for two r
 
 Alternatively, if you have Python installed on your machine, you can run the source py file instead of installing an EXE. If you're on a Mac or Linux machine, this is the only way to run the program.
 
-**Install Python and the Required Modules**
+**INSTALL PYTHON AND REQUIRED MODULES**
 
 First, check to see if Python is already installed with `python --version`. Also try `python3 --version` if the first one doesn't return a version number. If neither command shows you have Python, you'll need to install it. The easiest way is to go to [python.org](https://www.python.org) and download and install it from there. This project was created in Python Version 3.11.7, so it's best to use that version, if possible. If you have no plans to do anything else in or with Python, this is fine. However, the recommended way to use Python is through "virtual environemnts". Think of them as seperate sandboxes in which you can install specific versions of Python and the specific modules (and versions of the modules) required for a particular application. The easiest way to get started with virtual environments is to use a free program called Anaconda ([anaconda.com/download](https://www.anaconda.com/download)).
 
@@ -71,7 +75,7 @@ Next, you need to install the project's required modules. This is done with the 
 
     pip install -r requirements.txt
 
-**Run the PY File**
+**RUN THE PY FILE**
 
 With python and all of the required modules installed, you can now start the app with:
 
@@ -85,6 +89,7 @@ The app should open in a new window and from here it will work just the same as 
 
 Closing the window or pressing Ctrl + c will terminate the app.
 
+<br>
 
 ## For Mod Teams - Using this Tool for Your Project <a name="forking"></a>
 
@@ -129,6 +134,8 @@ The JSON file must be formatted as such:
 - download_subdirectories: a list of the paths to a folder for which the installer will zip and download its subdirectories individually
 
 Optionally, you can convert the app to a Windows executable using pyinstaller or other similar methods. This will alleviate the need for your users to install Python, but heads up - without a Windows developer license to properly sign the app, your EXE will almost certainly get flagged as malware by Windows Defender. If you know of a way to avoid this, please let me know!
+
+<br>
 
 ## LICENSE & PERMISSIONS <a name="license"></a>
 
