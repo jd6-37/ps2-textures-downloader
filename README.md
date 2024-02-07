@@ -136,7 +136,7 @@ Optionally, you can convert the app to a Windows executable using pyinstaller or
 
 #### USER-CUSTOMS FOLDER
 
-To make use of the features [discussed above](#custom-textures) about user-custom textures, there must be a `user-customs` folder in the root of your mod's `replacements` folder. It can't reside anywhere else. 
+To make use of the features [discussed above](#custom-textures) about user-custom textures, there must be a `user-customs` folder in the root of your mod's `replacements` folder. It can't reside anywhere else. Currently the functionality regardign the dash-prepended filenames is hard-coded and can't be disabled, but if this proposes a problem for your mod, feel free to reach out to me by creating a feature request, and I'd be happy to look into adding a toggle in the config.txt.
 
 <br>
 
