@@ -19,7 +19,7 @@ For users of the mod, downloading multi-GB zip files and keeping things updated 
 
 1. An INSTALLER for the first-time download and setup
 2. An UPDATER - a download/sync tool for post-installation updates
-
+  
 #### MOD INSTALLER <a name="introduction--installer"></a>
 
 The **installer** ("First Time Setup") breaks up the multi-GBs of files into multiple smaller zip files and downloads them individually (and automatically extracts them). If you download the source.zip directly from Github, it will come as a single massive zip file, which can cause issues of failed downloads and corrupted archives. Additionally, the installer will also put the textures in the proper location (after you point it to your emualator's textures folder - Eg. C:\PCSX2\textures).
