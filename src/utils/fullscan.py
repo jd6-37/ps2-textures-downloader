@@ -41,93 +41,35 @@ repo_tree_path = "utils/repo_directory_tree.txt"
 dry_run = False
 
 
-def get_repo_contents(owner, repo, subdirectory='', branch_name='main', page=1, per_page=100):
-    url = f'https://api.github.com/repos/{owner}/{repo}/contents/{subdirectory}?ref={branch_name}&page={page}&per_page={per_page}'
+def get_tree_contents(owner, repo, subdirectory='', branch_name='main'):
+    url = f'https://api.github.com/repos/{owner}/{repo}/git/trees/{branch_name}?recursive=1'
     headers = {'Authorization': f'token {github_token}'}
     response = requests.get(url, headers=headers)
 
     if response.status_code != 200:
         # Handle error as needed
         print(response.json())
-        print(f"\nERROR: Unable to fetch repository contents. Status code: {response.status_code}. \nAPI rate limit probably exceeded. Try again later. The limit resets every hour. You can see the exact reset time above at the beginning of this output.\n")
+        print(f"\nERROR: Unable to fetch repository tree. Status code: {response.status_code}. \nAPI rate limit probably exceeded. Try again later. The limit resets every hour. You can see the exact reset time above at the beginning of this output.\n")
         print("Terminating the process. Hasta la vista, baby.\n")
         sys.exit(1)
-        sys.stdout.flush()  # Force flush the output
-        return None
 
-    rate_limit = int(response.headers.get('X-RateLimit-Limit', 0))
-    used_limit = int(response.headers.get('X-RateLimit-Used', 0))
-    remaining_limit = int(response.headers.get('X-RateLimit-Remaining', 0))
-    reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
-    # maths
-    if rate_limit > 0:
-        rate_limit_percentage_used = (used_limit / rate_limit) * 100
-    else:
-        rate_limit_percentage_used = 0
+    tree_data = response.json().get('tree', [])
 
-    print(rate_limit_percentage_used)
-    if remaining_limit <= 50:
-        pause_time = reset_time - int(time.time()) + 10
-        print(f"API rate limit reached. Pausing until the limit resets in {pause_time // 60} minutes ({datetime.utcfromtimestamp(reset_time + 10).strftime('%I:%M %p UTC')}). Leave this window open. The scan will automatically continue where it left off.\n")
-        sys.stdout.flush()  # Force flush the output
-        time.sleep(pause_time)
-        print(f"Limit reset. Continuing process...\n")
-    elif rate_limit_percentage_used >= 10 and rate_limit_percentage_used <= 99.9 and rate_limit_percentage_used % 1 == 0:
-        if rate_limit_percentage_used not in printed_statements:
-            print(f"At {int(rate_limit_percentage_used)}% of the hourly API rate limit.")
-            sys.stdout.flush()  # Force flush the output
-            printed_statements.add(rate_limit_percentage_used)
-
-    content = response.json()
-
-    # Check if there are more pages
-    link_header = response.headers.get('Link')
-    if link_header and 'rel="next"' in link_header:
-        # Extract the next page URL
-        next_page_url = link_header.split(';')[0][1:-1]
-        # Recursive call to get the next page content
-        next_page_content = get_repo_contents(owner, repo, subdirectory, branch_name, page + 1, per_page)
-        # Combine the current page content with the next page content
-        content.extend(next_page_content)
-
-    return content
+    return tree_data
 
 
-def remove_leading_dots(path):
-    parts = path.split(os.path.sep)
-    return os.path.sep.join(part for part in parts if part and part != '..')
-
-
-def save_repo_directory_tree_to_file(contents, current_path='', file_paths=None):
+def save_repo_directory_tree_to_file(tree_data, current_path='', file_paths=None, subdirectory=''):
     if file_paths is None:
         file_paths = []
 
-    for item in contents:
-        if isinstance(item, dict):
-            # End the entire process if the API limit is exceeded
-            if item.get('type') == 'file':
-                # Ignore git and certain (but not all) hidden files and folders
-                if not item['name'].startswith(('.git', '.DS', '._')):
-                    full_path = os.path.join(current_path, item['name'])
-                    relative_path = os.path.relpath(full_path, f'{owner}/{repo}/{subdirectory}')
-                    normalized_path = remove_leading_dots(relative_path)
-                    file_paths.append(normalized_path)
-            elif item.get('type') == 'dir':
-                # Check if the item is a directory and doesn't start with a "." before making the recursive call
-                if 'type' in item and item['type'] == 'dir' and not item['name'].startswith('.'):
-                    sub_contents = get_repo_contents(owner, repo, f'{item["path"]}', branch_name)
-                    if sub_contents:
-                        save_repo_directory_tree_to_file(sub_contents, os.path.join(current_path, item['name']), file_paths)
-                        sys.stdout.flush()  # Force flush the output
-
-        elif isinstance(item, str):
-            # Ignore git and certain (but not all) hidden files and folders
-            if not os.path.basename(item).startswith(('.git', '.DS', '._')):
-                # Handle cases where item is a string (e.g., a file name)
-                full_path = os.path.join(current_path, item)
-                relative_path = os.path.relpath(full_path, f'{owner}/{repo}/{subdirectory}')
-                normalized_path = remove_leading_dots(relative_path)
-                file_paths.append(normalized_path)
+    for item in tree_data:
+        if item['type'] == 'tree':
+            # If it's a directory, recursively call the function
+            save_repo_directory_tree_to_file(item.get('contents', []), current_path + item['path'] + '/', file_paths, subdirectory)
+        elif item['type'] == 'blob':
+            # If it's a file, append the file path to the list only if it starts with the specified subdirectory
+            if item['path'].startswith(subdirectory + '/'):
+                file_paths.append(current_path + item['path'][len(subdirectory) + 1:])
 
     return file_paths
 
@@ -229,7 +171,7 @@ def delete_files_not_in_repo(files_to_delete, dry_run=True):
 
     # Check if there are files to be deleted
     if files_to_delete:
-        print("\n\nWAITING FOR YOUR RESPONSE IN THE POP-UP DIALAOG WINDOW...:\n")
+        print("\n\nWAITING FOR YOUR RESPONSE IN THE POP-UP DIALAOG WINDOW...\n")
         sys.stdout.flush()  # Force flush the output
         # Prompt the user to continue with deletion
         if not dry_run:
@@ -457,29 +399,16 @@ save_local_directory_tree_to_file(local_directory)
 print()
 sys.stdout.flush()  # Force flush the output
 
-# Get the contents of the root directory with pagination
-print(f"Analyzing Github repo directory structure. This will take several MINUTES, so be patient...")
+# Get the contents of the github repo root directory 
+print(f"Analyzing Github repo directory structure...")
 print()
 sys.stdout.flush()  # Force flush the output
 
-page = 1
-per_page = 100
-file_paths = []
+# Step 1: Fetch the repository tree
+tree_data = get_tree_contents(owner, repo, subdirectory, branch_name)
 
-while True:
-    contents = get_repo_contents(owner, repo, subdirectory, branch_name, page, per_page)
-    
-    if not contents:
-        break
-    
-    # Append paths to the file_paths list
-    file_paths = save_repo_directory_tree_to_file(contents, file_paths=file_paths)
-
-    # Check if there are more pages
-    if len(contents) < per_page:
-        break
-
-    page += 1
+# Step 2: Process the tree data and get file paths
+file_paths = save_repo_directory_tree_to_file(tree_data, subdirectory=subdirectory)
 
 # Sort the file paths alphabetically
 file_paths.sort()
@@ -549,6 +478,28 @@ print("#       ensure their hashes match and they are identical.           #")
 print("#                                                                   #")
 print("#####################################################################")
 print()
+
+# Check the rate limits (limit resets every hour at top of hour)
+limits = check_rate_limits(github_token)
+
+if limits:
+    limit_cap = limits['limit']
+    used_calls = limits['used']
+    remaining_calls_start = limits['remaining']
+    limit_reset_timestamp = limits['reset']
+    reset_timestamp_local = localize_reset_timestamp(limit_reset_timestamp)
+
+    print()
+    print(f"Github API RATE LIMITS status: {used_calls} of {limit_cap} calls used. {remaining_calls_start} remaining until the hourly limit reset at {reset_timestamp_local}.")
+    # print(f"Raw: {limits}")
+    print()
+    sys.stdout.flush()  # Force flush the output
+else:
+    print()
+    print("Unable to retrieve rate limits.")
+    print()
+    sys.stdout.flush()  # Force flush the output
+    
 # Print the current time
 get_and_print_local_time()
 # Get the end time and calculate the duration
