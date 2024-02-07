@@ -136,7 +136,7 @@ Optionally, you can convert the app to a Windows executable using pyinstaller or
 
 #### USER-CUSTOMS FOLDER
 
-To make use of the features discussed above about user-custom textures, there must be a `user-customs` folder in the root of your `replacements` folder. It can't reside anywhere else. 
+To make use of the features discussed above about user-custom textures, there must be a `user-customs` folder in the root of your mod's `replacements` folder. It can't reside anywhere else. 
 
 <br>
 
