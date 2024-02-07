@@ -314,26 +314,26 @@ loop.run_until_complete(download_task)
 # Close the event loop
 loop.close()
 
-# # Get rid of the nested "textures" folder
-# def move_and_delete_folders(local_directory):
-#     # Define the paths
-#     textures_path = os.path.join(local_directory, "textures")
-#     slus_path = os.path.join(textures_path, slus_folder)
+# Get rid of the nested "textures" folder
+def move_and_delete_folders(local_directory):
+    # Define the paths
+    textures_path = os.path.join(local_directory, "textures")
+    slus_path = os.path.join(textures_path, slus_folder)
 
-#     # Check if the "textures" folder exists
-#     if os.path.exists(textures_path) and os.path.isdir(textures_path):
-#         # Move SLUS folder up one level
-#         shutil.move(slus_path, local_directory)
+    # Check if the "textures" folder exists
+    if os.path.exists(textures_path) and os.path.isdir(textures_path):
+        # Move SLUS folder up one level
+        shutil.move(slus_path, local_directory)
 
-#         # Remove the "textures" folder
-#         shutil.rmtree(textures_path)
+        # Remove the "textures" folder
+        shutil.rmtree(textures_path)
 
-#         print("Folders organized in the textures directory.")
-#     else:
-#         print(f"Error: Tried to reorganize the folder but something went wrong. Be sure the mod textures are in (your_emulator_folder)/textures/{slus_folder}replacements.")
+        print("Folders organized in the textures directory.")
+    else:
+        print(f"Error: Tried to reorganize the folder but something went wrong. Be sure the mod textures are in (your_emulator_folder)/textures/{slus_folder}replacements.")
 
-# # Get rid of the nested "textures" folder
-# move_and_delete_folders(local_directory)
+# Get rid of the nested "textures" folder
+move_and_delete_folders(local_directory)
 
 print()   
 print()   
