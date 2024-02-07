@@ -19,8 +19,8 @@ This is a companion app for PS2 mod projects like the [NCAA NEXT mod](https://ww
 
 For users of a PSD mod that requires a massive folder of replacement textures, downloading multi-GB zip files and keeping things updated to the most recent version can be a chore. That's where this application comes in. It is, essentially, two utilities in one:
 
-1. An INSTALLER for the first-time download and setup
-2. An UPDATER - a download/sync tool for post-installation updates
+1. An INSTALLER for the first-time download and setup of the textures pack
+2. An UPDATER - a download/sync tool for post-installation updates of the textures pack
 
 #### MOD INSTALLER <a name="introduction--installer"></a>
 
