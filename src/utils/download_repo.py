@@ -165,7 +165,7 @@ def unzip_file(directory, zip_file_path):
 
 # Function to print progress messages
 def progress_printer(subdirectory, files_downloaded, total_files):
-    print(f"Status update ({subdirectory}): {files_downloaded} of {total_files} items downloaded into zip.")
+    print(f"Status update for the zip file ({subdirectory}): {files_downloaded} of {total_files} items.")
     sys.stdout.flush() 
 
 
