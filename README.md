@@ -66,7 +66,7 @@ NOTE: You will most likely be warned by Windows Defender about malware for two r
 
 Alternatively, if you have Python installed on your machine, you can run the source py file instead of installing an EXE. If you're on a Mac or Linux machine, this is the only way to run the program.
 
-**INSTALL PYTHON AND REQUIRED MODULES**
+**STEP 1: INSTALL PYTHON AND REQUIRED MODULES**
 
 First, check to see if Python is already installed with `python --version`. Also try `python3 --version` if the first one doesn't return a version number. If neither command shows you have Python, you'll need to install it. The easiest way is to go to [python.org](https://www.python.org) and download and install it from there. This project was created in Python Version 3.11.7, so it's best to use that version, if possible. If you have no plans to do anything else in or with Python, this is fine. However, the recommended way to use Python is through "virtual environemnts". Think of them as seperate sandboxes in which you can install specific versions of Python and the specific modules (and versions of the modules) required for a particular application. The easiest way to get started with virtual environments is to use a free program called Anaconda ([anaconda.com/download](https://www.anaconda.com/download)).
 
@@ -74,7 +74,7 @@ Next, you need to install the project's required modules. This is done with the 
 
     pip install -r requirements.txt
 
-**RUN THE PY FILE**
+**STEP 2: RUN THE PY FILE**
 
 With python and all of the required modules installed, you can now start the app with:
 
