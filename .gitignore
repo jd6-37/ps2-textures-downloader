@@ -7,6 +7,7 @@ config-*.txt
 __pycache__
 local_directory_tree.txt
 repo_directory_tree.txt
+src-backup
 
 ############################################
 # Global across projects system files, etc. 

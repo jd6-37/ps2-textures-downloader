@@ -1,4 +1,4 @@
-# PS2 Emulator Replacement Textures Installer and Updater
+# Installer/Updater Tool for PS2 Mods' Replacement Textures 
 
 ## Table of Contents
 - [Overview](#introduction)
