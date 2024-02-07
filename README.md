@@ -1,6 +1,6 @@
 # PS2 Emulator Replacement Textures Installer and Updater
 
-This is a companion app for PS2 mod projects like the [NCAA NEXT mod](https://www.ncaanext.com). These mods requires downloading and keeping up-to-date what is often a very large (multi-GB) pack of replacement texture files. These files are how the mod team is able to, for example, change a team's default uniforms to the current real life uniforms.
+This is a companion app for PS2 mod projects like the [NCAA NEXT mod](https://www.ncaanext.com). Mods like NCAA NEXT require downloading and keeping up-to-date what is often a very large (multi-GB) pack of replacement texture files. These files are how the mod team is able to, for example, change a team's default uniforms to the current real life uniforms.
 
 Downloading multi-GB zip files and keeping things updated to the most recent version can be a chore. That's where this application comes in. It is, essentially, two utilities in one:
 
