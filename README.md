@@ -19,7 +19,7 @@ The **updater's "Full Sync"** sync does the same as above, but instead of lookin
 
 The **updater's "Deep Scan"** will identify stray files in your textures directory that may be causing issues. With PS2 texture replacement, no two files can have the same name anywhere across the the entire replacements folder or any of its subfolders. The file **names** are all that matter to the emulator. The emulator will use the first "file.png" it finds, and will ignore the rest of the files with that name. The Deep Scan compares the directory tree of the local installation versus that of the Github repository. If it finds any files/paths that exist locally but not in Github, it will offer to delete them. Using the Deep Scan combined with the Full Sync will ensure your local textures are perfectly in sync with the project's latest version and that there are no extraneous files that could cause issues.
 
-## Custom Textures
+## How it Handles User-Custom Textures
 
 One great thing about PS2 modding is that it's very easy for users to customize the textures for their own installation. For example, in the NCAA NEXT mod, a user can use the ESPN logo in the scorebug instead of the mod's default NCAA NEXT logo, or they can use a different helmet texture for their favorite team's home uniform. These changes are easy to make and only require the user puts the desired new texture into the replacements folder and rename or remove the mod's default replacement texture (because remember, no two textures can have the same name).
 
