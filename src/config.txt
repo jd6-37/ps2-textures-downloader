@@ -1,13 +1,13 @@
-local_directory: 
+local_directory:
 github_token: 
 last_run_date: 2005-07-11 00:00:00.000
 initial_setup_done: False
 debug_mode: False
 ###^^^^^ ABOVE IS AUTO-GENERATED. DO NOT EDIT ^^^^^###  
 project_name: NCAA NEXT TEST
-owner: jd6-37
-repo: test-ncaanext
+owner: github-username-or-org
+repo: repo-name
 branch_name: main
-subdirectory: textures/SLUS-21214
-slus_folder: SLUS-21214
-json_url: https://raw.githubusercontent.com/jd6-37/test-ncaanext/main/download-urls.json
+subdirectory: textures
+slus_folder: SLUS-XXXXX
+json_url: https://link-to-your/installer-data.json
