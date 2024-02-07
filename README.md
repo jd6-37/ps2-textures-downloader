@@ -1,6 +1,6 @@
 # Installer/Updater Tool for PS2 Mods' Replacement Textures 
 
-This is a companion app for PS2 mod projects like the [NCAA NEXT mod](https://www.ncaanext.com). Mods like NCAA NEXT require its users to download and keep up-to-date what is often a very large (multi-GB) pack of replacement texture files. These files are how the mod team is able to upscale PS2 games to 4K and, for example, change a football team's uniforms from the game's original visuals to the current real life uniforms. The texture files are essential for the mod, they must be precisely installed (Eg. no two textures can have the same name), and, especially in the case of sports games, are continuously being updated by the mod team. This app makes it easier for users to install and manage the updates of the textures pack.
+This is a companion app for PS2 mod projects that require its users to download and keep up-to-date what is often a very large (multi-GB) pack of replacement texture files. These files are how the mod team is able to upscale PS2 games to 4K and, for example, change a football team's uniforms from the game's original visuals to the current real life uniforms. The texture files are essential for the mod, they must be precisely installed (Eg. no two textures can have the same name), and, especially in the case of sports games, are continuously being updated by the mod team. This app makes it easier for users to install and manage the updates of the textures pack.
 
 ## Table of Contents
 - [Features](#features)
@@ -92,7 +92,7 @@ Closing the window or pressing Ctrl + c will terminate the app.
 
 ## For Mod Teams - Using this Tool for Your Project <a name="forking"></a>
 
-This app was created by an NCAA NEXT mod team member for the NEXT project, but it is open-source and can be used for other PS2 texture-replacement mod projects. Feel free to fork the repo, customize it for your own project, and share the customized app with your community.
+This app was created by an team member for their project, but it is open-source and can be used for other PS2 texture-replacement mod projects. Feel free to fork the repo, customize it for your own project, and share the customized app with your community.
 
 #### REPO CONFIG SETTINGS
 
