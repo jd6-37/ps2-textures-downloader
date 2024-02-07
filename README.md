@@ -37,6 +37,8 @@ To install and run the app, you have two options:
 
 ### Option 1: Windows Installer
 
+*This is for forked repos that have been customized to work for a specific mod, and the team has created and published an EXE version of the app.*
+
 Download the setup exe from the latest release and run it. Follow the installation prompts. You can save a shortcut to your desktop or run it from your Start menu like any other Windows application. 
 
 NOTE: You will most likely be warned by Windows Defender about malware for two reasons: 1) the program used to convert the Python app to an EXE is commonly used by hackers, so Windows (as it should) flags these as potential risks, especially because 2) I created the app without a proper developers license (because it costs hundreds of dollars per year). So, if you're not comfortable installing and running the EXE, that's understandable. You can always run the Python source file directly as described in Option 2 below. And feel free to inspect the source code (or ask a programmer you trust to inspect it) beforehand. 
