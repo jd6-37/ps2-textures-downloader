@@ -1,5 +1,5 @@
 local_directory: /Users/j/Library/Application Support/AetherSX2/textures
-github_token: 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
+github_token: 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
 last_run_date: 2021-02-06 20:36:37.000
 initial_setup_done: False
 debug_mode: True

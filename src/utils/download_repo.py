@@ -350,4 +350,15 @@ print("#   This shouldn't be necessary, but it can solve issues caused by  #")
 print("#        spotty internet connection or corrupted Zip files.         #")
 print("#                                                                   #")
 print("#####################################################################")
+
+# Get the current time in UTC timezone
+utc_now = datetime.utcnow()
+utc_now = utc_now.replace(tzinfo=pytz.utc)
+
+# Format the time as a string
+formatted_time = utc_now.strftime("%Y-%m-%d %H:%M:%S %Z")
+
+# Print the current time in UTC
+print("\nCurrent time in UTC:", formatted_time)
+
 sys.stdout.flush() 
