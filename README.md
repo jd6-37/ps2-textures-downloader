@@ -37,7 +37,7 @@ To install and run the app, you have two options:
 
 ### Option 1: Windows Installer
 
-*This is for forked repos that have been customized to work for a specific mod, and the team has created and published an EXE version of the app.*
+*This option is for forked repos that have been customized to work for a specific mod, and the team has created and published an EXE version of the app. There is no EXE for this base version of the app.*
 
 Download the setup exe from the latest release and run it. Follow the installation prompts. You can save a shortcut to your desktop or run it from your Start menu like any other Windows application. 
 
