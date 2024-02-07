@@ -1,0 +1,6 @@
+psutil==5.9.8
+aiohttp==3.9.3
+tenacity==8.2.3
+requests==2.31.0
+tzlocal==5.2
+pytz==2024.1

@@ -1,0 +1,13 @@
+local_directory:
+github_token: 
+last_run_date: 2005-07-11 00:00:00.000
+initial_setup_done: False
+debug_mode: False
+###^^^^^ ABOVE IS AUTO-GENERATED. DO NOT EDIT ^^^^^###  
+project_name: NCAA NEXT TEST
+owner: github-username-or-org
+repo: repo-name
+branch_name: main
+subdirectory: textures
+slus_folder: SLUS-XXXXX
+json_url: https://link-to-your/installer-data.json
