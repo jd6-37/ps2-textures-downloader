@@ -74,7 +74,7 @@ Closing the window or pressing Ctrl + c will terminate the app.
 
 This app was created by an NCAA NEXT mod team member for the NEXT project, but it is open-source and can be used for other PS2 texture-replacement mod projects. Feel free to fork the repo, customize it for your own project, and share the customized app with your community.
 
-Repo Configuration Settings
+#### Repo Configuration Settings
 
 Open config.txt and change the following settings to that of your project.
 
