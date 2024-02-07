@@ -11,6 +11,8 @@
 - [Forking and Using for Your Project](#forking)
 - [License](#license)
 
+<br><br>
+
 ## Introduction <a name="introduction"></a>
 
 This is a companion app for PS2 mod projects like the [NCAA NEXT mod](https://www.ncaanext.com). Mods like NCAA NEXT require downloading and keeping up-to-date what is often a very large (multi-GB) pack of replacement texture files. These files are how the mod team is able to upscale PS2 games to 4K and, for example, change in the game a football team's uniforms from the game's original visuals to the current real life uniforms.
@@ -20,7 +22,7 @@ For users of the mod, downloading multi-GB zip files and keeping things updated 
 1. An INSTALLER for the first-time download and setup
 2. An UPDATER - a download/sync tool for post-installation updates
   
-  
+
 #### MOD INSTALLER <a name="introduction--installer"></a>
 
 The **installer** ("First Time Setup") breaks up the multi-GBs of files into multiple smaller zip files and downloads them individually (and automatically extracts them). If you download the source.zip directly from Github, it will come as a single massive zip file, which can cause issues of failed downloads and corrupted archives. Additionally, the installer will also put the textures in the proper location (after you point it to your emualator's textures folder - Eg. C:\PCSX2\textures).
