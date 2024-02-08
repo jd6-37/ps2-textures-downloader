@@ -765,10 +765,6 @@ except Exception as e:
 # Run fullscan.py to compare directory trees and offer to delete and/or download files
 fullscan.run_scan_and_print_output()
 
-
-print(f"local_directory: {local_directory}")
-# check_for_dupes(folder)
-
 print()
 
 # Check the rate limits (limit resets every hour at top of hour)
