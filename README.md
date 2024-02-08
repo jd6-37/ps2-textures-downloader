@@ -145,7 +145,7 @@ Open config.txt and change the following settings to that of your project.
     slus_folder: SLUS-XXXXX
     json_url: https://link-to-your/installer-data.json
 
-The JSON file must be formatted as such:
+You must host a JSON file for the installer data (you can host it in the project's repo) and it must be formatted as such:
 
     {
       "version": "v1.1",
