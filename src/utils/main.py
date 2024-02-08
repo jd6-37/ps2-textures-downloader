@@ -242,7 +242,8 @@ def download_files(repo_url, local_path, branch='main', subdirectory='', debug_m
                                 if debug_mode == 'True':
                                     print(f"    Checking if in finished_files_set before running hash tests.")
                                 if file_path not in finished_files_set:
-                                    print(f"    Not in finished_files_set.")
+                                    if debug_mode == 'True':
+                                        print(f"    Not in finished_files_set.")
                                     if os.path.exists(file_path):
                                         # Compute the local hash
                                         local_file_hash = helpers.compute_local_file_hash(file_path, debug_mode)
@@ -772,9 +773,10 @@ print()
 # Run fullscan.py to compare directory trees and offer to delete and/or download files
 fullscan.run_scan_and_print_output()
 
-replacements_path = os.path.join(local_directory, subdirectory, "replacements")
-print(f"replacements_path: {replacements_path}")
-helpers.check_for_dupes(replacements_path)
+if debug_mode == 'True':
+    # Check for duplicate texture names across the entire replacements folder
+    replacements_path = os.path.join(local_directory, slus_folder, "replacements")
+    helpers.check_for_dupes(replacements_path)
 
 print()
 

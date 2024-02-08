@@ -324,7 +324,6 @@ def format_time_difference(start_time, end_time):
 
 def check_for_dupes(folder):
     """Takes a folder and checks it recursively for non-unique filenames and prints output"""
-    print(f"folder to check: {folder}")
     def find_duplicate_png_files(folder):
         png_files = {}
         duplicate_sets = []

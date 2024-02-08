@@ -76,6 +76,25 @@ def get_subdirectory_names(api_url, headers, local_directory, subdirectory):
 
     return selected_directories
 
+# Define a queue to store zip file names
+zip_queue = asyncio.Queue()
+
+async def process_zip_queue(local_directory):
+    while True:
+        # Get the next zip file from the queue
+        zip_file_path = await zip_queue.get()
+
+        # Break the loop if the sentinel is encountered
+        if zip_file_path is None:
+            break
+
+        # Unzip the file after writing all contents
+        unzip_file(local_directory, zip_file_path)
+
+        # Mark the task as done
+        zip_queue.task_done()
+
+
 async def download_repo_split_async(api_url, headers, local_directory, selected_directories, progress_printer):
     async with aiohttp.ClientSession() as session:
         tasks = [download_subdirectory_async(session, api_url, headers, local_directory, directory, progress_printer) for directory in selected_directories]
@@ -154,14 +173,28 @@ async def download_item_async(api_url, headers, local_directory, subdirectory, i
         sys.stdout.flush() 
         raise e
 
-def unzip_file(directory, zip_file_path):
-    with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-        zip_ref.extractall(directory)
 
-    # Delete the zip file after successful extraction
-    os.remove(zip_file_path)
-    print("Extracted. Deleting zip.")
-    sys.stdout.flush() 
+def unzip_file(directory, zip_file_path):
+    max_retries = 5
+    retry_delay = 2  # seconds
+
+    for _ in range(max_retries):
+        try:
+            with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+                zip_ref.extractall(directory)
+            
+            # Attempt to remove the file
+            os.remove(zip_file_path)
+            print("Extracted. Deleting zip.")
+            sys.stdout.flush()
+            break  # If successful, exit the loop
+        except PermissionError as e:
+            print(f"PermissionError: {e}. Retrying after {retry_delay} seconds...")
+            time.sleep(retry_delay)
+    else:
+        # If the loop completes without a successful extraction and removal, raise an exception
+        raise RuntimeError(f"Unable to extract and remove file: {zip_file_path}")
+
 
 # Function to print progress messages
 def progress_printer(subdirectory, files_downloaded, total_files):
@@ -308,8 +341,17 @@ else:
 loop = asyncio.get_event_loop()
 download_task = loop.create_task(download_repo_split_async(api_url, headers, local_directory, selected_directories, progress_printer))
 
+# Start the task for processing the zip file queue
+zip_processing_task = loop.create_task(process_zip_queue(local_directory))
+
 # Run the event loop until the task is complete
 loop.run_until_complete(download_task)
+
+# Add sentinel to the queue
+loop.run_until_complete(zip_queue.put(None))
+
+# Wait for the zip processing task to complete before closing the event loop
+loop.run_until_complete(zip_processing_task)
 
 # Close the event loop
 loop.close()
