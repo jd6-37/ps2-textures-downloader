@@ -12,6 +12,7 @@ This is a companion app for PS2 mod projects that require its users to download 
   - [Option 1: EXE](#installation--exe)
   - [Option 2: Python Source](#installation--python)
 - [Using the App](#usage)
+  - [Initial Configuration](#usage--config)
   - [First Time Setup/Installation of the Mod](#usage--setup)
   - [Updating and Syncing with the Mod](#usage--sync)
 - [Forking and Using for Your Project](#forking)
@@ -26,17 +27,17 @@ For users of a PSD mod that requires a massive folder of replacement textures, d
 1. An INSTALLER for the first-time download and setup of the textures pack
 2. An UPDATER - a download/sync tool for post-installation updates of the textures pack
 
-#### MOD INSTALLER <a name="introduction--installer"></a>
+### MOD INSTALLER <a name="introduction--installer"></a>
 
 The **installer** ("First Time Setup") breaks up the multi-GBs of files into multiple smaller zip files and downloads them individually (and automatically extracts them). If you download the source.zip directly from Github, it will come as a single massive zip file, which can cause issues of failed downloads and corrupted archives. Additionally, the installer will also put the textures in the proper location (after you point it to your emualator's textures folder - Eg. C:\PCSX2\textures).
 
-#### MOD UPDATER <a name="introduction--updater"></a>
+### MOD UPDATER <a name="introduction--updater"></a>
 
 The **updater's "Download New Content"** sync allows for quickly grabbing the latest changes or additions to the project that have been published to Github. It is better than downloading a zip file of updates because A) it only downloads what you don't have (or don't have the latest version of), B) it's able to move/rename files instead of downloading them, and C) it's able to delete files that have been deleted from the project – something a zip download can never do. It does all of this by means of the Github API and is able to, essentially, follow along with the changes the team makes to the project. Also, it uses the same file hashing comparison that Git/Github uses to know if your local file is the same as the one in Github. This is much more accurate than other methods such as comparing modified dates. 
 
 The **updater's "Full Sync"** sync does the same as above, but instead of looking at changes (Git commits) since your last sync date, it looks at the entire history of changes.
 
-#### MOD HEALTH CHECKER <a name="introduction--healthcheck"></a>
+### MOD HEALTH CHECKER <a name="introduction--healthcheck"></a>
 
 After every sync, the app will automatically run a **health check** to identify potential stray files in the textures directory that may be causing issues. With PS2 texture replacement, no two files can have the same name anywhere across the the entire `replacements` folder or any of its subfolders. The file *names* are all that matter to the emulator. The emulator will use the first "file.png" it finds, and will ignore the rest of the files with that name. To help prevent that issue, the health check compares the directory tree of the local installation versus that of the Github repository. If it finds any files/paths that exist locally but not in Github, it will offer to delete them. This health check combined with the 'Full Sync' will ensure your local textures are perfectly in sync with the project's latest version and that there are no extraneous files that could cause issues.
 
@@ -98,7 +99,7 @@ Closing the window or pressing Ctrl + c will terminate the app.
 
 ## Using the App <a name="usage"></a>
 
-#### INITIAL CONFIGURATION
+### INITIAL CONFIGURATION <a name="usage--config"></a>
 
 **GitHub API Token**
 
@@ -120,7 +121,7 @@ The app breaks up the download into smaller zip files, which reduces the frequen
 
 The next time you open the app, it will open to the "Textures Updater" screen. 
 
-Click "Run Sync" and the app will look at every change made to the project Github repo in the time period specified and ensure your local directory is in sync with these changes by downloading files, renaming/moving file, or deleting files. If you chose "Download New Content", the time period will be between your last sync date and now. This is usually very quick. If you chose "Full Sync", it will look at every change ever made to the Github repo. Depending on the age of the repo, it could take several minutes, but it shouldn't take hours. It's recommended to do a Full Sync after the initial installation, occassionally moving forward, and whenever you experience issues with textures not working. 
+Click "Run Sync" and the app will look at every change made to the project Github repo in the time period specified and ensure your local directory is in sync with these changes by downloading files, renaming/moving files, or deleting files. If you chose "Download New Content", the time period will be between your last sync date and now. This is usually very quick. If you chose "Full Sync", it will look at every change ever made to the Github repo. Depending on the age of the repo, it could take several minutes, but it shouldn't take hours. It's recommended to do a Full Sync after the initial installation, occassionally moving forward, and whenever you experience issues with textures not working. 
 
 At the end of every sync, the last run date is updated, and a health check is done (the entire folder and files structure is compared to that of the Github repo).
 
@@ -134,7 +135,7 @@ If you use **custom textures**, be sure to keep all of those in a `user-customs`
 
 This app was created by a mod team member for their team's project, but it is open-source and can be used for other PS2 texture-replacement mod projects. Feel free to fork the repo, customize it for your own project, and share the customized app with your community.
 
-#### REPO CONFIG SETTINGS
+### REPO CONFIG SETTINGS
 
 Open config.txt and change the following settings to that of your project.
 
@@ -176,7 +177,7 @@ The goal with the different options for the download folders is to break up the 
 
 Optionally, you can convert the app to a Windows executable using pyinstaller or other similar methods. This will alleviate the need for your users to install Python, but heads up - without a Windows developer license to properly sign the app, your EXE will almost certainly get flagged as malware by Windows Defender. If you know of a way to avoid this, please let me know!
 
-#### USER-CUSTOMS FOLDER
+### USER-CUSTOMS FOLDER
 
 To make use of the features [discussed above](#custom-textures) about user-custom textures, there must be a `user-customs` folder and it must be in the root of your mod's `replacements` folder. It can't reside anywhere else. Currently the functionality regarding the dash-prepended filenames is hard-coded and can't be disabled, but if this proposes a problem for your mod, feel free to reach out to me by creating a feature request, and I'd be happy to look into adding a toggle in the config.txt.
 
