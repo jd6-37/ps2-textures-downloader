@@ -110,13 +110,13 @@ When the app opens the first time, it should open to the "First Time Setup" scre
 
 In the "Full Path to Textures Folder", paste the path to your emulator's `textures` folder. It should look something like `C:\PCSX2\textures`. It's recommended you copy this directly from your PCSX2 settings at Settings > Graphics > Texture Replacements. Click Save Configuration.
 
-### FIRST TIME SETUP/INSTALLATION OF THE MOD
+### FIRST TIME SETUP/INSTALLATION OF THE MOD <a name="usage--setup"></a>
 
 With your configuration options defined, you can now run the initial download and installation of the textures pack by clicking the "Begin Installation" button. Depending on the size of the texture pack, your internet speed, and the current health of the Github API CDN, this could take up to several hours. For 10 GBs, a time of 2-3 hours is normal. Fortunately, you can leave the app running in the background and let it do its thing. Do not close the app or the download will terminate with no option to continue where it left off.
 
 The app breaks up the download into smaller zip files, which reduces the frequency of failed downloads and corrupted zip files. Upon completion of every zip file, the zip is extracted and then deleted. When all zips are done downloading and extracting, the tool re-organizes the folder to ensure the textures are in the proper location (assuming you defined the path to your textures folder correctly), Eg. `C:\PCSX2\textures\SLUS-XXXXX\replacements`.
 
-### UPDATING AND SYNCING WITH THE MOD
+### UPDATING AND SYNCING WITH THE MOD <a name="usage--sync"></a>
 
 The next time you open the app, it will open to the "Textures Updater" screen. 
 
