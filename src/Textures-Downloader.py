@@ -11,8 +11,6 @@ import subprocess  # Add this line to import subprocess module
 
 from utils.helpers import load_config_new, save_config_new, ConfigManager
 
-
-
 config_manager = ConfigManager()
 
 # Access configuration variables
@@ -70,9 +68,6 @@ def run_subprocess(script_name, user_choice, terminal_text, root):
             terminal_text.see(tk.END)
 
     Thread(target=update_terminal).start()
-
-
-
 
 
 class DebugModeMixin:
