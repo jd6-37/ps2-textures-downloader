@@ -212,7 +212,7 @@ def delete_files_not_in_repo(files_to_delete, dry_run=True):
             print("\nDry Run", "(Dry run) Deletion cancelled.")
             sys.stdout.flush()  # Force flush the output
     else:
-        print("\nNo Files to Delete", "\nYou don't have any extra files that aren't in the Github repo (other than your custom textures and DLC in the 'user-customs'). Great!")
+        print("\n*** No Stray Files to Delete ***", "\nYou don't have any extra files that aren't in the Github repo (other than your custom textures and DLC in the 'user-customs'). Great!")
         sys.stdout.flush()  # Force flush the output
 
 
@@ -315,7 +315,7 @@ def download_files_not_in_local(files_to_download, dry_run=True):
             print("\nDry Run. Download cancelled.")
             sys.stdout.flush()
     else:
-        print("\nNo Files to download", "\nYou have everything in the Github repo. Great!")
+        print("\n*** No Missing Files to download ***", "\nYou have everything in the Github repo. Great!")
         sys.stdout.flush()
 
 
@@ -330,182 +330,96 @@ def create_message_window(title, message):
     confirmation = messagebox.askyesno(title, message)
 
 
-# Check if all required variables exist and have values
-required_variables = ["local_directory", "github_token", "owner", "repo", "branch_name", "subdirectory"]
+def run_scan_and_print_output():
 
-if not config_manager.github_token:
-    print(f"\nERROR: Cannot run sync. A Github Personal Access Token is missing or empty.")
-    print(f"\nA Github Personal Token is required. Without it, your IP address is limited to 60 request per hour,")
-    print(f"and that will be easily exceeded by how this installer chunks and downloads the repo.")
-    print(f"Get your free API token in your Github account: Settings > Developer Settings > Personal Access Token.")
-    print(f"Click profile pic at top right > Settings > Developer Settings (at bottom) > Personal Access Token.")
-    sys.exit(1)
+    print()  # Add a line break 
+    print("#---------------------------------------------------------------------#")
+    print("#                  Comparing directory trees...                       #")
+    print("#                                                                     #")
+    print("#    Important for identifying and deleting extraneous textures.      #")
+    print("#                                                                     #")
+    print()  # Add a line break 
+    sys.stdout.flush()  # Force flush the output
 
-for var_name in required_variables:
-    if not getattr(config_manager, var_name):
-        print(f"\nERROR: Cannot run sync. Configuration variable '{var_name}' is missing or empty.")
-        sys.exit(1)
-
-
-print()  # Add a line break 
-# Print the current time
-get_and_print_local_time()
-# Get the starting time to calculate the duration later
-start_time = get_current_time()
-print()  # Add a line break 
-print("#######################################################################")
-print("#                                                                     #")
-print("#                    Textures Sync - DEEP SCAN                        #")
-print("#                                                                     #")
-print("#    Important for identifying and deleting extraneous textures.      #")
-print("#                                                                     #")
-print("#     Compares directory trees of local vs repo and prompts to        #")
-print("#   download/delete files where it doesn't match the Github repo.     #")
-print("#  It ignores the 'user-customs' folder and all disabled textures     #")
-print("#  everywhere (aka files prepended with a dash, such as '-file.png')  #")
-print("#                                                                     #")
-print("#---------------------------------------------------------------------#")
-print()  # Add a line break 
-print()  # Add a line break 
-sys.stdout.flush()  # Force flush the output
-
-# Check the rate limits (limit resets every hour at top of hour)
-limits = check_rate_limits(github_token)
-
-if limits:
-    limit_cap = limits['limit']
-    used_calls = limits['used']
-    remaining_calls_start = limits['remaining']
-    limit_reset_timestamp = limits['reset']
-    reset_timestamp_local = localize_reset_timestamp(limit_reset_timestamp)
-
-    print()
-    print(f"Github API RATE LIMITS status: {used_calls} of {limit_cap} calls used. {remaining_calls_start} remaining until the hourly limit reset at {reset_timestamp_local}.")
-    # print(f"Raw: {limits}")
+    # Save the local directory tree to a file
+    print(f"Analyzing local directory structure...")
     print()
     sys.stdout.flush()  # Force flush the output
-else:
-    print()
-    print("Unable to retrieve rate limits.")
+    save_local_directory_tree_to_file(local_directory)
     print()
     sys.stdout.flush()  # Force flush the output
 
+    # Get the contents of the github repo root directory 
+    print(f"Analyzing Github repo directory structure...")
+    print()
+    sys.stdout.flush()  # Force flush the output
 
-# Save the local directory tree to a file
-print(f"Analyzing local directory structure...")
-print()
-sys.stdout.flush()  # Force flush the output
-save_local_directory_tree_to_file(local_directory)
-print()
-sys.stdout.flush()  # Force flush the output
+    # Step 1: Fetch the repository tree
+    tree_data = get_tree_contents(owner, repo, subdirectory, branch_name)
 
-# Get the contents of the github repo root directory 
-print(f"Analyzing Github repo directory structure...")
-print()
-sys.stdout.flush()  # Force flush the output
+    # Step 2: Process the tree data and get file paths
+    file_paths = save_repo_directory_tree_to_file(tree_data, subdirectory=subdirectory)
 
-# Step 1: Fetch the repository tree
-tree_data = get_tree_contents(owner, repo, subdirectory, branch_name)
+    # Sort the file paths alphabetically
+    file_paths.sort()
 
-# Step 2: Process the tree data and get file paths
-file_paths = save_repo_directory_tree_to_file(tree_data, subdirectory=subdirectory)
+    # Save the sorted file paths to repo_directory_tree.txt
+    with open(repo_tree_path, 'w') as file:
+        for file_path in file_paths:
+            file.write(file_path + '\n')
 
-# Sort the file paths alphabetically
-file_paths.sort()
-
-# Save the sorted file paths to repo_directory_tree.txt
-with open(repo_tree_path, 'w') as file:
-    for file_path in file_paths:
-        file.write(file_path + '\n')
-
-print("Directory tree generated for the Github repository.")
-sys.stdout.flush()  # Force flush the output
+    print("Directory tree generated for the Github repository.")
+    sys.stdout.flush()  # Force flush the output
 
 
-# PROCEED TO PRUNING OR DOWNLOADING -------------------------
-print("\nComparing the Github repo directory structure to your local textures folder...")
-sys.stdout.flush()  # Force flush the output
+    # PROCEED TO PRUNING OR DOWNLOADING -------------------------
+    print("\nComparing the Github repo directory structure to your local textures folder...")
+    sys.stdout.flush()  # Force flush the output
 
 
-# Perform the deletion of local files not in the repo (or dry run) with user prompt
-files_to_delete = list_files_not_in_repo(local_tree_path, repo_tree_path, local_directory, dry_run)
-if files_to_delete:
-    print("\nEXTRA Files to be Deleted:")
-    sys.stdout.flush()  # Flush the buffer to ensure immediate display
+    # Perform the deletion of local files not in the repo (or dry run) with user prompt
+    files_to_delete = list_files_not_in_repo(local_tree_path, repo_tree_path, local_directory, dry_run)
+    if files_to_delete:
+        print("\nEXTRA Files to be Deleted:")
+        sys.stdout.flush()  # Flush the buffer to ensure immediate display
 
-    for file_path in files_to_delete:
-        print(f"- {file_path}")
-        sys.stdout.flush()  # Flush the buffer after each line
-
-# Delete the files or print a message saying no files to delete
-delete_files_not_in_repo(files_to_delete, dry_run)
-sys.stdout.flush()  # Force flush the output
-
-
-# Perform the download of missing files with user prompt
-files_to_download = list_files_to_download(local_tree_path, repo_tree_path, local_directory, dry_run)
-if files_to_download:
-    print("\nMISSING Files to Download:")
-    sys.stdout.flush()  # Flush the buffer to ensure immediate display
-    for file_path in files_to_download:
-        if file_path.startswith(f"{slus_folder}/replacements/"):
-            # Remove the prefix before printing
-            print(f"- {file_path[len(f'{slus_folder}/replacements/'):]}")
-        else:
-            # Print as-is
+        for file_path in files_to_delete:
             print(f"- {file_path}")
-        sys.stdout.flush()  # Flush the buffer after each line
+            sys.stdout.flush()  # Flush the buffer after each line
 
-# Download the files or print a message saying no files to download
-download_files_not_in_local(files_to_download, dry_run)
-sys.stdout.flush()  # Force flush the output
-
-
-
-
-# Call the function to delete empty folders after syncing files
-remove_empty_folders(local_directory, debug_mode=False)
-
-print()  # Add a line break 
-print()  # Add a line break 
-print("#-------------------------------------------------------------------#")
-print("#                                                                   #")
-print("#                              DONE!                                #")
-print("#                                                                   #")
-print("#  You should also do a FULL SYNC as that will compare the files    #")
-print("#    (that already existed and got ignored with this scan) to       #")
-print("#       ensure their hashes match and they are identical.           #")
-print("#                                                                   #")
-print("#####################################################################")
-print()
-
-# Check the rate limits (limit resets every hour at top of hour)
-limits = check_rate_limits(github_token)
-
-if limits:
-    limit_cap = limits['limit']
-    used_calls = limits['used']
-    remaining_calls_start = limits['remaining']
-    limit_reset_timestamp = limits['reset']
-    reset_timestamp_local = localize_reset_timestamp(limit_reset_timestamp)
-
-    print()
-    print(f"Github API RATE LIMITS status: {used_calls} of {limit_cap} calls used. {remaining_calls_start} remaining until the hourly limit reset at {reset_timestamp_local}.")
-    # print(f"Raw: {limits}")
-    print()
+    # Delete the files or print a message saying no files to delete
+    delete_files_not_in_repo(files_to_delete, dry_run)
     sys.stdout.flush()  # Force flush the output
-else:
-    print()
-    print("Unable to retrieve rate limits.")
-    print()
+
+
+    # Perform the download of missing files with user prompt
+    files_to_download = list_files_to_download(local_tree_path, repo_tree_path, local_directory, dry_run)
+    if files_to_download:
+        print("\nMISSING Files to Download:")
+        sys.stdout.flush()  # Flush the buffer to ensure immediate display
+        for file_path in files_to_download:
+            if file_path.startswith(f"{slus_folder}/replacements/"):
+                # Remove the prefix before printing
+                print(f"- {file_path[len(f'{slus_folder}/replacements/'):]}")
+            else:
+                # Print as-is
+                print(f"- {file_path}")
+            sys.stdout.flush()  # Flush the buffer after each line
+
+    # Download the files or print a message saying no files to download
+    download_files_not_in_local(files_to_download, dry_run)
     sys.stdout.flush()  # Force flush the output
-    
-# Print the current time
-get_and_print_local_time()
-# Get the end time and calculate the duration
-end_time = get_current_time()
-print()
-formatted_time = format_time_difference(start_time, end_time)
-print(f"The operation took {formatted_time}")
-print()
-sys.stdout.flush()  # Force flush the output
+
+
+    # Call the function to delete empty folders after syncing files
+    remove_empty_folders(local_directory, debug_mode=False)
+
+    print()  # Add a line break 
+    print("#                                                                   #")
+    print("#                 Finished Directory Trees Comparison               #")
+    print("#-------------------------------------------------------------------#")
+    print()
+
+
+        
+    sys.stdout.flush()  # Force flush the output

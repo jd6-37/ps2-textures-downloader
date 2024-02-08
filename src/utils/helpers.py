@@ -304,7 +304,7 @@ def get_and_print_local_time():
 
     local_time_string = f"{current_time_str} {timezone_abbreviation}"
 
-    print("\nCurrent time:", local_time_string)
+    print("Current time:", local_time_string)
 
 
 def format_time_difference(start_time, end_time):

@@ -12,7 +12,8 @@ import shutil
 import argparse
 
 # Import functions
-from helpers import load_config, load_config_new, ConfigManager, remove_empty_folders, check_rate_limits, is_remote_file_newer, compute_local_file_hash, compare_hashes, localize_reset_timestamp
+import fullscan
+import helpers
 
 # Parse command-line arguments
 parser = argparse.ArgumentParser()
@@ -20,7 +21,7 @@ parser.add_argument('--user_choice', type=str, default='only_new_content',
                     help='Specify whether to do a full scan or only check for new or modified files.')
 args = parser.parse_args()
 
-config_manager = ConfigManager()
+config_manager = helpers.ConfigManager()
 # Access configuration variables
 debug_mode = config_manager.debug_mode
 initial_setup_done = config_manager.initial_setup_done
@@ -244,9 +245,9 @@ def download_files(repo_url, local_path, branch='main', subdirectory='', debug_m
                                     print(f"    Not in finished_files_set.")
                                     if os.path.exists(file_path):
                                         # Compute the local hash
-                                        local_file_hash = compute_local_file_hash(file_path, debug_mode)
+                                        local_file_hash = helpers.compute_local_file_hash(file_path, debug_mode)
                                         # Compare local hash to github file hash
-                                        hash_comparison = compare_hashes(local_file_hash, file_sha, file_path, debug_mode)
+                                        hash_comparison = helpers.compare_hashes(local_file_hash, file_sha, file_path, debug_mode)
                                     
                                     # Check for prepended version and use that unless there is also the normal/non-prepended version
                                     else:
@@ -264,11 +265,11 @@ def download_files(repo_url, local_path, branch='main', subdirectory='', debug_m
                                             if debug_mode == 'True':
                                                 print(f"    It exists. Modifying path for hash comparison to: {file_path_prepended}")
                                             # Compute the local hash
-                                            local_file_hash = compute_local_file_hash(file_path_prepended, debug_mode)
+                                            local_file_hash = helpers.compute_local_file_hash(file_path_prepended, debug_mode)
                                             if debug_mode == 'True':
                                                 print(f"    Computed hash for file_path_prepended is {local_file_hash}")
                                             # Compare local hash to github file hash
-                                            hash_comparison = compare_hashes(local_file_hash, file_sha, file_path, debug_mode)
+                                            hash_comparison = helpers.compare_hashes(local_file_hash, file_sha, file_path, debug_mode)
                                             if debug_mode == 'True':
                                                 print(f"    Is remote has same as file_path_prepended: {hash_comparison}")
                                         else:
@@ -319,7 +320,6 @@ def download_files(repo_url, local_path, branch='main', subdirectory='', debug_m
                                         print(f"    Not in finished_files_set.")
 
                                 if file_status == 'added':
-                                    # if not os.path.exists(file_path) or is_remote_file_newer(file_url, file_path, commit_date, debug_mode):
                                     if not os.path.exists(file_path) or not hash_comparison:
                                         counter_files_downloaded = download_file(file_url, file_path, counter_files_downloaded, commit_date, debug_mode, hash_comparison)
                                     else:
@@ -672,14 +672,14 @@ for var_name in required_variables:
 
 
 # Check the rate limits (limit resets every hour at top of hour)
-limits = check_rate_limits(github_token)
+limits = helpers.check_rate_limits(github_token)
 
 if limits:
     limit_cap = limits['limit']
     used_calls = limits['used']
     remaining_calls_start = limits['remaining']
     limit_reset_timestamp = limits['reset']
-    reset_timestamp_local = localize_reset_timestamp(limit_reset_timestamp)
+    reset_timestamp_local = helpers.localize_reset_timestamp(limit_reset_timestamp)
 
     print()
     print(f"Github API RATE LIMITS status: {used_calls} of {limit_cap} calls used. {remaining_calls_start} remaining until the hourly limit reset at {reset_timestamp_local}.")
@@ -693,8 +693,10 @@ else:
     sys.stdout.flush()
 
 
-
-print()  # Add a line break 
+# Print the current time
+helpers.get_and_print_local_time()
+# Get the starting time to calculate the duration later
+start_time = helpers.get_current_time()
 print()  # Add a line break 
 print("#######################################################################")
 print("#                                                                     #")
@@ -730,10 +732,10 @@ try:
     print()
     sys.stdout.flush()
     # Check the rate limits again to see usage (limit resets every hour at top of hour)
-    limits = check_rate_limits(github_token)
+    limits = helpers.check_rate_limits(github_token)
     remaining_calls_end = limits['remaining']
     limit_reset_timestamp = limits['reset']
-    reset_timestamp_local = localize_reset_timestamp(limit_reset_timestamp)
+    reset_timestamp_local = helpers.localize_reset_timestamp(limit_reset_timestamp)
     print(f"Github API RATE LIMITS status: Used {remaining_calls_start - remaining_calls_end} API calls this sync round. {remaining_calls_end} remaining until the hourly limit reset at {reset_timestamp_local}.")
     print()
     print("Finished with textures sync.")
@@ -742,8 +744,13 @@ try:
     print()
     sys.stdout.flush()
     # Call the function to delete empty folders after syncing files
-    remove_empty_folders(local_directory, debug_mode=False)
-    print("DONE!")
+    helpers.remove_empty_folders(local_directory, debug_mode=False)
+    print()  # Add a line break 
+    print("#                                                                   #")
+    print("#     Finished reviewing all changes in specified time period.      #")
+    print("#           Comparing directory structure to Github...              #")
+    print("#-------------------------------------------------------------------#")
+    print()
     sys.stdout.flush()
 
     # Save the current run date to the config file
@@ -755,3 +762,58 @@ except Exception as e:
     sys.stdout.flush()
 
 
+# Run fullscan.py to compare directory trees and offer to delete and/or download files
+fullscan.run_scan_and_print_output()
+
+
+print()
+
+# Check the rate limits (limit resets every hour at top of hour)
+limits = helpers.check_rate_limits(github_token)
+
+if limits:
+    limit_cap = limits['limit']
+    used_calls = limits['used']
+    remaining_calls_start = limits['remaining']
+    limit_reset_timestamp = limits['reset']
+    reset_timestamp_local = helpers.localize_reset_timestamp(limit_reset_timestamp)
+
+    print()
+    print(f"Github API RATE LIMITS status: {used_calls} of {limit_cap} calls used. {remaining_calls_start} remaining until the hourly limit reset at {reset_timestamp_local}.")
+    # print(f"Raw: {limits}")
+    print()
+    sys.stdout.flush()  # Force flush the output
+else:
+    print()
+    print("Unable to retrieve rate limits.")
+    print()
+    sys.stdout.flush()  # Force flush the output
+
+
+# Print the current time
+helpers.get_and_print_local_time()
+# Get the end time and calculate the duration
+end_time = helpers.get_current_time()
+formatted_time = helpers.format_time_difference(start_time, end_time)
+print(f"The operation took {formatted_time}")
+print()
+sys.stdout.flush()  # Force flush the output
+
+print()  # Add a line break 
+print()  # Add a line break 
+print("#-------------------------------------------------------------------#")
+print("#                                                                   #")
+print("#                              DONE!                                #")
+print("#                                                                   #")
+print("#   If you answered yes to the prompts to download and/or delete    #")
+print("#   files (or you didn't get prompted) your local directory and     #")
+print("#   file structure is identical to the Github repository. Great!    #")
+print("#                                                                   #")
+print("#   TIP: The 'Full Sync' option goes beyond the normal directory    #")
+print("#  tree comparison and compares the hashes of every file to ensure  #")
+print("# they are identical, rather than just checking if the file exists. #")
+print("#  It's recommended you run it occassionally (or if having issues). #")
+print("#                                                                   #")
+print("#####################################################################")
+
+sys.stdout.flush()  # Force flush the output

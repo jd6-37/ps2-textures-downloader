@@ -6,10 +6,14 @@ This is a companion app for PS2 mod projects that require its users to download 
 - [Features](#features)
   - [Mod Installer](#introduction--installer)
   - [Mod Updater](#introduction--updater)
+  - [Mod Health Checker](#introduction--healthcheck)
 - [Handling User-Custom Textures](#custom-textures)
 - [Installation](#installation)
   - [Option 1: EXE](#installation--exe)
   - [Option 2: Python Source](#installation--python)
+- [Using the App](#usage)
+  - [First Time Setup/Installation of the Mod](#usage--setup)
+  - [Updating and Syncing with the Mod](#usage--sync)
 - [Forking and Using for Your Project](#forking)
 - [License](#license)
 
@@ -32,7 +36,9 @@ The **updater's "Download New Content"** sync allows for quickly grabbing the la
 
 The **updater's "Full Sync"** sync does the same as above, but instead of looking at changes (Git commits) since your last sync date, it looks at the entire history of changes.
 
-The **updater's "Deep Scan"** will identify stray files in your textures directory that may be causing issues. With PS2 texture replacement, no two files can have the same name anywhere across the the entire `replacements` folder or any of its subfolders. The file **names** are all that matter to the emulator. The emulator will use the first "file.png" it finds, and will ignore the rest of the files with that name. The Deep Scan compares the directory tree of the local installation versus that of the Github repository. If it finds any files/paths that exist locally but not in Github, it will offer to delete them. Using the Deep Scan combined with the Full Sync will ensure your local textures are perfectly in sync with the project's latest version and that there are no extraneous files that could cause issues.
+#### MOD HEALTH CHECKER <a name="introduction--healthcheck"></a>
+
+After every sync, the app will automatically run a **health check** to identify potential stray files in the textures directory that may be causing issues. With PS2 texture replacement, no two files can have the same name anywhere across the the entire `replacements` folder or any of its subfolders. The file *names* are all that matter to the emulator. The emulator will use the first "file.png" it finds, and will ignore the rest of the files with that name. To help prevent that issue, the health check compares the directory tree of the local installation versus that of the Github repository. If it finds any files/paths that exist locally but not in Github, it will offer to delete them. This health check combined with the 'Full Sync' will ensure your local textures are perfectly in sync with the project's latest version and that there are no extraneous files that could cause issues.
 
 <br>
 
@@ -50,11 +56,11 @@ This app was built with this in mind! It has two special features that make it g
 
 <br>
 
-## Installing and Using this App <a name="installation"></a>
+## Installing the App <a name="installation"></a>
 
 To install and run the app, you have two options:
 
-### Option 1: Windows Installer <a name="installation--exe"></a>
+### Install Option 1: Windows Installer <a name="installation--exe"></a>
 
 *This option is for forked repos that have been customized to work for a specific mod, and the team has created and published an EXE version of the app. There is no EXE for this base version of the app.*
 
@@ -62,7 +68,7 @@ Download the setup exe from the latest release and run it. Follow the installati
 
 NOTE: You will most likely be warned by Windows Defender about malware for two reasons: 1) the program used to convert the Python app to an EXE is commonly used by hackers, so Windows (as it should) flags these as potential risks, especially because 2) I created the app without a proper developers license (because it costs hundreds of dollars per year). So, if you're not comfortable installing and running the EXE, that's understandable. You can always run the Python source file directly as described in Option 2 below. And feel free to inspect the source code (or ask a programmer you trust to inspect it) beforehand. 
 
-### Option 2: Python Source (required for Mac and Linux) <a name="installation--python"></a>
+### Install Option 2: Python Source (required for Mac and Linux) <a name="installation--python"></a>
 
 Alternatively, if you have Python installed on your machine, you can run the source py file instead of installing an EXE. If you're on a Mac or Linux machine, this is the only way to run the program.
 
@@ -87,6 +93,40 @@ or if that doesn't work, try...
 The app should open in a new window and from here it will work just the same as running the EXE.
 
 Closing the window or pressing Ctrl + c will terminate the app.
+
+<br>
+
+## Using the App <a name="usage"></a>
+
+#### INITIAL CONFIGURATION
+
+**GitHub API Token**
+
+A GitHub "Personal Access Token" is required for all users. A free Github account is required and the API token can be found in Settings (get to this by clicking your user avatar in the top right corner) > Developer Settings > Personal Access Tokens. Either token options are suitable, and the token needs no permissions. Simply click through the options, give it any name you like, give it the 1 year maximum expiration (or whatever you like), and click Generate Token. Copy and save the token somewhere safe. Don't share it.
+
+When the app opens the first time, it should open to the "First Time Setup" screen. Paste your token into the GitHub Personal Access Token field. Click Save Configuration.
+
+**Defining the Path to the Textures Folder**
+
+In the "Full Path to Textures Folder", paste the path to your emulator's `textures` folder. It should look something like `C:\PCSX2\textures`. It's recommended you copy this directly from your PCSX2 settings at Settings > Graphics > Texture Replacements. Click Save Configuration.
+
+### FIRST TIME SETUP/INSTALLATION OF THE MOD
+
+With your configuration options defined, you can now run the initial download and installation of the textures pack by clicking the "Begin Installation" button. Depending on the size of the texture pack, your internet speed, and the current health of the Github API CDN, this could take up to several hours. For 10 GBs, a time of 2-3 hours is normal. Fortunately, you can leave the app running in the background and let it do its thing. Do not close the app or the download will terminate with no option to continue where it left off.
+
+The app breaks up the download into smaller zip files, which reduces the frequency of failed downloads and corrupted zip files. Upon completion of every zip file, the zip is extracted and then deleted. When all zips are done downloading and extracting, the tool re-organizes the folder to ensure the textures are in the proper location (assuming you defined the path to your textures folder correctly), Eg. `C:\PCSX2\textures\SLUS-XXXXX\replacements`.
+
+### UPDATING AND SYNCING WITH THE MOD
+
+The next time you open the app, it will open to the "Textures Updater" screen. 
+
+Click "Run Sync" and the app will look at every change made to the project Github repo in the time period specified and ensure your local directory is in sync with these changes by downloading files, renaming/moving file, or deleting files. If you chose "Download New Content", the time period will be between your last sync date and now. This is usually very quick. If you chose "Full Sync", it will look at every change ever made to the Github repo. Depending on the age of the repo, it could take several minutes, but it shouldn't take hours. It's recommended to do a Full Sync after the initial installation, occassionally moving forward, and whenever you experience issues with textures not working. 
+
+At the end of every sync, the last run date is updated, and a health check is done (the entire folder and files structure is compared to that of the Github repo).
+
+Users should run a sync when the mod team has announced that new content has been published (aka pushed to the Github repo's main branch).
+
+If you use **custom textures**, be sure to keep all of those in a `user-customs` folder in the root of replacements, and remember to disable the default textures by prepending the filename with a dash, and leave them in their place. Read more about that here: [Handling User-Custom Textures](#custom-textures)
 
 <br>
 
@@ -131,6 +171,8 @@ The JSON file must be formatted as such:
 - temp_size: approximate size of the largest zip it will download
 - download_complete: a list of the paths to a folder in your repo that the installer will zip whole and download
 - download_subdirectories: a list of the paths to a folder for which the installer will zip and download its subdirectories individually
+
+The goal with the different options for the download folders is to break up the download into manageable chunks. If a folder is larger than, for example, 800 or 900 GB, it is probably best to break that up. Add the folder to the `download_subdirectories` list, and the app will download each of its subfolders as seperate zips rather than the entire folder as a single zip. Be sure to add all of your paths to one of the two lists, or the content won't be downloaded.
 
 Optionally, you can convert the app to a Windows executable using pyinstaller or other similar methods. This will alleviate the need for your users to install Python, but heads up - without a Windows developer license to properly sign the app, your EXE will almost certainly get flagged as malware by Windows Defender. If you know of a way to avoid this, please let me know!
 

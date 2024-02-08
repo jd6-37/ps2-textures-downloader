@@ -116,7 +116,7 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         self.config_manager = ConfigManager()
 
         self.master.title(f"{project_name} Textures Updater")
-        self.master.minsize(900, 800)
+        self.master.minsize(900, 720)
 
         # Create a boolean variable to store the checkbox state of debug_mode
         self.debug_mode_var = tk.BooleanVar(value=self.config_manager.debug_mode)
@@ -253,19 +253,6 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         self.canvas.bind("<Leave>", lambda event: self.canvas.config(cursor=""))
 
 
-
-        # Divider
-        ttk.Separator(self, orient="horizontal").grid(row=15, column=0, columnspan=3, pady=10, sticky="ew") 
-
-
-        # Text Below the Main Run Sync Button
-        additional_text = "DEEP SCAN is important for identifying stray files that were never in Github. It compares your entire local directory structure to Github. Use this along with Full Sync for a comprehensive sync."
-        additional_text_label = tk.Label(self, text=additional_text, font=('TkDefaultFont', 12), justify="left", wraplength=550)
-        additional_text_label.grid(row=16, column=0, columnspan=2, pady=(5, 5), padx=(30, 5))
-
-        # Deep Scan Button
-        deep_scan_button = tk.Button(self, text="Run Deep Scan", command=self.run_deep_scan, cursor="hand2")
-        deep_scan_button.grid(row=16, column=2, pady=(5, 5), padx=10)
 
 
         # Debug mode checkbox
