@@ -26,6 +26,7 @@ For users of a PSD mod that requires a massive folder of replacement textures, d
 
 1. An INSTALLER for the first-time download and setup of the textures pack
 2. An UPDATER - a download/sync tool for post-installation updates of the textures pack
+3. A HEALTH CHEKER - checks for stray/duplicate-named files and compares directory structure to github
 
 ### MOD INSTALLER <a name="introduction--installer"></a>
 
