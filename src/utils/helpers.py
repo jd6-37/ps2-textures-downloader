@@ -321,3 +321,59 @@ def format_time_difference(start_time, end_time):
     formatted_time += f"{seconds} sec"
 
     return formatted_time
+
+def check_for_dupes(folder):
+    """Takes a folder and checks it recursively for non-unique filenames and prints output"""
+    print(f"folder to check: {folder}")
+    def find_duplicate_png_files(folder):
+        png_files = {}
+        duplicate_sets = []
+
+        for root, dirs, files in os.walk(folder):
+            for file in files:
+                if file.lower().endswith('.png'):
+                    file_path = os.path.join(root, file)
+                    if file in png_files:
+                        existing_file_path = png_files[file]
+                        duplicate_set = {existing_file_path, file_path}
+                        duplicate_sets.append(duplicate_set)
+                    else:
+                        png_files[file] = file_path
+
+        return duplicate_sets
+
+    duplicate_sets = find_duplicate_png_files(folder)
+
+    print()  # Add a line break 
+    print("# - - - - - - -  Starting Duplicate Textures Finder   - - - - - - - #")
+    print("#                                                                   #")
+    print()
+    print("Checking recursively in the replacements folder to ensure all filenames are unique...")
+    print()
+
+    if duplicate_sets:
+        print()
+        print("******  WARNING: Duplicate texture names found  ***********")
+        print("*                                                         *")
+        print("*  We aren't deleting these because the Github repo has   *")
+        print("*  the same duplicate files. However, two files with the  *")
+        print("*  same name anywhere in replacements will cause issues.  *")
+        print("*  It's recommended you alert the maker of the mod about  *")
+        print("*  these, and keep an eye on them in your installation   *")
+        print("*  (or delete the one you know is not the correct one).   *")
+        print("*                                                         *")
+        print("*                                                         *")
+        for idx, duplicate_set in enumerate(duplicate_sets, start=1):
+            print(f"\nDuplicate Set {idx}:")
+            for duplicate in duplicate_set:
+                print(duplicate)
+        print()
+    else:
+        print()
+        print("Success. No duplicate PNG files found!")
+        print()
+
+    print()  # Add a line break 
+    print("#                                                                   #")
+    print("# - - - - - - -  Finished Duplicate Textures Finder   - - - - - - - #")
+    print()

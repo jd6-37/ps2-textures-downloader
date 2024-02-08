@@ -333,10 +333,8 @@ def create_message_window(title, message):
 def run_scan_and_print_output():
 
     print()  # Add a line break 
-    print("#---------------------------------------------------------------------#")
-    print("#                  Comparing directory trees...                       #")
+    print("# - - - - - - - - -   Comparing Directory Trees   - - - - - - - - - - #")
     print("#                                                                     #")
-    print("#    Important for identifying and deleting extraneous textures.      #")
     print("#                                                                     #")
     print()  # Add a line break 
     sys.stdout.flush()  # Force flush the output
@@ -416,7 +414,6 @@ def run_scan_and_print_output():
 
     print()  # Add a line break 
     print("#                                                                   #")
-    print("#                 Finished Directory Trees Comparison               #")
-    print("#-------------------------------------------------------------------#")
+    print("# - - - - - -   Finished Directory Trees Comparison   - - - - - - - #")
     print()
     sys.stdout.flush()  # Force flush the output

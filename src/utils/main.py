@@ -761,10 +761,27 @@ except Exception as e:
     print()
     sys.stdout.flush()
 
+print()  # Add a line break 
+print("#-------------------------------------------------------------------#")
+print("#                                                                   #")
+print("#                      Starting Health Check                        #")
+print("#                                                                   #")
+print("#    Looking for extraneous textures and duplicate filenames...     #")
+print()
 
 # Run fullscan.py to compare directory trees and offer to delete and/or download files
 fullscan.run_scan_and_print_output()
 
+replacements_path = os.path.join(local_directory, subdirectory, "replacements")
+print(f"replacements_path: {replacements_path}")
+helpers.check_for_dupes(replacements_path)
+
+print()
+
+print()  # Add a line break 
+print("#                                                                   #")
+print("#                      Finished Health Check                        #")
+print("#-------------------------------------------------------------------#")
 print()
 
 # Check the rate limits (limit resets every hour at top of hour)
