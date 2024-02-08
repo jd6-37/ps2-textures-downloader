@@ -419,7 +419,4 @@ def run_scan_and_print_output():
     print("#                 Finished Directory Trees Comparison               #")
     print("#-------------------------------------------------------------------#")
     print()
-
-
-        
     sys.stdout.flush()  # Force flush the output
