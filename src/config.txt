@@ -4,10 +4,10 @@ last_run_date: 2005-07-11 00:00:00.000
 initial_setup_done: False
 debug_mode: False
 ###^^^^^ ABOVE IS AUTO-GENERATED. DO NOT EDIT ^^^^^###  
-project_name: Mod Name
-owner: github-username-or-org
-repo: repo-name
+project_name: NCAA NEXT
+owner: ncaanext
+repo: ncaa-next-25
 branch_name: main
 subdirectory: textures
-slus_folder: SLUS-XXXXX
-json_url: https://link-to-your/installer-data.json
+slus_folder: SLUS-21214
+json_url: https://raw.githubusercontent.com/ncaanext/ncaa-next-25/main/installer-data.json
