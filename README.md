@@ -22,7 +22,7 @@ This is a companion app for the [NCAA NEXT](https://www.ncaanext.com) mod that i
 
 ## Features <a name="features"></a>
 
-For users of a PSD mod that requires a massive folder of replacement textures, downloading multi-GB zip files and keeping things updated to the most recent version can be a chore. That's where this application comes in. It is, essentially, two utilities in one:
+The NCAA NEXT mod requires a massive folder of replacement textures. This app helps manage the installation and upkeep of those textures. It is, essentially, three utilities in one:
 
 1. An INSTALLER for the first-time download and setup of the textures pack
 2. An UPDATER - a download/sync tool for post-installation updates of the textures pack
@@ -30,7 +30,7 @@ For users of a PSD mod that requires a massive folder of replacement textures, d
 
 ### MOD INSTALLER <a name="introduction--installer"></a>
 
-The **installer** ("First Time Setup") breaks up the multi-GBs of files into multiple smaller zip files and downloads them individually (and automatically extracts them). If you download the source.zip directly from Github, it will come as a single massive zip file, which can cause issues of failed downloads and corrupted archives. Additionally, the installer will also put the textures in the proper location (after you point it to your emualator's textures folder - Eg. C:\PCSX2\textures).
+The **installer** ("First Time Setup") breaks up the 12+ GBs (and growing) of files into multiple smaller zip files and downloads them individually (and automatically extracts them). If you download the source.zip directly from Github, it will come as a single massive zip file, which can cause issues of failed downloads and corrupted archives. Additionally, the installer will also put the textures in the proper location (after you point it to your emualator's textures folder - Eg. C:\PCSX2\textures).
 
 ### MOD UPDATER <a name="introduction--updater"></a>
 
@@ -116,7 +116,7 @@ In the "Full Path to Textures Folder", paste the path to your emulator's `textur
 
 With your configuration options defined, you can now run the initial download and installation of the textures pack by clicking the "Begin Installation" button. Depending on the size of the texture pack, your internet speed, and the current health of the Github API CDN, this could take up to several hours. For 10 GBs, a time of 2-3 hours is normal. Fortunately, you can leave the app running in the background and let it do its thing. Do not close the app or the download will terminate with no option to continue where it left off.
 
-The app breaks up the download into smaller zip files, which reduces the frequency of failed downloads and corrupted zip files. Upon completion of every zip file, the zip is extracted and then deleted. When all zips are done downloading and extracting, the tool re-organizes the folder to ensure the textures are in the proper location (assuming you defined the path to your textures folder correctly), Eg. `C:\PCSX2\textures\SLUS-XXXXX\replacements`.
+The app breaks up the download into smaller zip files, which reduces the frequency of failed downloads and corrupted zip files. Upon completion of every zip file, the zip is extracted and then deleted. When all zips are done downloading and extracting, the tool re-organizes the folder to ensure the textures are in the proper location (assuming you defined the path to your textures folder correctly) – `C:\PCSX2\textures\SLUS-21214\replacements`.
 
 ### UPDATING AND SYNCING WITH THE MOD <a name="usage--sync"></a>
 
@@ -132,57 +132,6 @@ If you use **custom textures**, be sure to keep all of those in a `user-customs`
 
 <br>
 
-## For Mod Teams - Using this Tool for Your Project <a name="forking"></a>
-
-This app was created by a mod team member for their team's project, but it is open-source and can be used for other PS2 texture-replacement mod projects. Feel free to fork the repo, customize it for your own project, and share the customized app with your community.
-
-### REPO CONFIG SETTINGS
-
-Open config.txt and change the following settings to that of your project.
-
-    owner: org-or-user
-    repo: repository-name
-    branch_name: main
-    subdirectory: textures
-    slus_folder: SLUS-XXXXX
-    json_url: https://link-to-your/installer-data.json
-
-You must host a JSON file for the installer data (you can host it in the project's repo) and it must be formatted as such:
-
-    {
-      "version": "v1.1",
-      "release_date": "2024-02-05",
-      "release_url": "https://github.com/owner/repo/releases/tag/v1.1",
-      "total_size": 0.15,
-      "temp_size": 0.05,
-      "download_complete": [
-        "textures/SLUS-21214/replacements/Controller",
-        "textures/SLUS-21214/replacements/general",
-        "textures/SLUS-21214/replacements/user-customs"
-      ],
-      "download_subdirectories": [
-        "textures/SLUS-21214/replacements/uniforms/FBS",
-        "textures/SLUS-21214/replacements/uniforms/FCS"
-      ]
-    }
-
-- version: the version the installer tool will install (format this how you like)
-- release_date: the date of the version
-- release_url: link to the release version or wherever you like
-- total_size: the total approximate size of the repo in GBs
-- temp_size: approximate size of the largest zip it will download
-- download_complete: a list of the paths to a folder in your repo that the installer will zip whole and download
-- download_subdirectories: a list of the paths to a folder for which the installer will zip and download its subdirectories individually
-
-The goal with the different options for the download folders is to break up the download into manageable chunks. If a folder is larger than, for example, 800 or 900 GB, it is probably best to break that up. Add the folder to the `download_subdirectories` list, and the app will download each of its subfolders as seperate zips rather than the entire folder as a single zip. Be sure to add all of your paths to one of the two lists, or the content won't be downloaded.
-
-Optionally, you can convert the app to a Windows executable using pyinstaller or other similar methods. This will alleviate the need for your users to install Python, but heads up - without a Windows developer license to properly sign the app, your EXE will almost certainly get flagged as malware by Windows Defender. If you know of a way to avoid this, please let me know!
-
-### USER-CUSTOMS FOLDER
-
-To make use of the features [discussed above](#custom-textures) about user-custom textures, there must be a `user-customs` folder and it must be in the root of your mod's `replacements` folder. It can't reside anywhere else. Currently the functionality regarding the dash-prepended filenames is hard-coded and can't be disabled, but if this proposes a problem for your mod, feel free to reach out to me by creating a feature request, and I'd be happy to look into adding a toggle in the config.txt.
-
-<br>
 
 ## LICENSE & PERMISSIONS <a name="license"></a>
 
