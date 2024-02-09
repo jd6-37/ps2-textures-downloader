@@ -58,20 +58,28 @@ def get_tree_contents(owner, repo, subdirectory='', branch_name='main'):
     return tree_data
 
 
-def save_repo_directory_tree_to_file(tree_data, current_path='', file_paths=None, subdirectory=''):
-    if file_paths is None:
-        file_paths = []
+def save_repo_directory_tree_to_file(tree_data, current_path='', file_paths_repo=None, subdirectory=''):
+    if file_paths_repo is None:
+        file_paths_repo = []
+
+    # Ensure subdirectory always ends with a path separator
+    subdirectory = os.path.normpath(subdirectory)
+    if not subdirectory.endswith(os.sep):
+        subdirectory += os.sep
+
 
     for item in tree_data:
+        # Normalize the item path
+        item_path = os.path.normpath(item['path'])
         if item['type'] == 'tree':
             # If it's a directory, recursively call the function
-            save_repo_directory_tree_to_file(item.get('contents', []), current_path + item['path'] + '/', file_paths, subdirectory)
+            save_repo_directory_tree_to_file(item.get('contents', []), os.path.join(current_path, item_path), file_paths_repo, subdirectory)
         elif item['type'] == 'blob':
             # If it's a file, append the file path to the list only if it starts with the specified subdirectory
-            if item['path'].startswith(subdirectory + '/'):
-                file_paths.append(current_path + item['path'][len(subdirectory) + 1:])
+            if item_path.startswith(os.path.join(current_path, subdirectory)):
+                file_paths_repo.append(os.path.join(current_path, item_path[len(subdirectory):].lstrip(os.sep).lstrip(os.path.sep)))
 
-    return file_paths
+    return file_paths_repo
 
 
 def save_local_directory_tree_to_file(directory, output_file=local_tree_path):
@@ -152,6 +160,14 @@ def list_files_to_download(local_tree_path, repo_tree_path, local_directory, dry
 
     # Find files in repo directory but not in the local directory
     files_to_download = set(repo_full_paths) - set(local_full_paths)
+
+    # Check for prepended files with a dash and exclude them if the original file exists
+    for file_to_download in list(files_to_download):
+        original_filename = os.path.basename(file_to_download)
+        prepended_file = os.path.join(os.path.dirname(file_to_download), "-" + original_filename)
+        if os.path.exists(os.path.join(local_directory, prepended_file)):
+            files_to_download.discard(file_to_download)
+
 
     # Remove local_directory from the paths
     files_to_download = [os.path.relpath(path, local_directory) for path in files_to_download]
@@ -356,14 +372,14 @@ def run_scan_and_print_output():
     tree_data = get_tree_contents(owner, repo, subdirectory, branch_name)
 
     # Step 2: Process the tree data and get file paths
-    file_paths = save_repo_directory_tree_to_file(tree_data, subdirectory=subdirectory)
+    file_paths_repo = save_repo_directory_tree_to_file(tree_data, subdirectory=subdirectory)
 
     # Sort the file paths alphabetically
-    file_paths.sort()
+    file_paths_repo.sort()
 
     # Save the sorted file paths to repo_directory_tree.txt
     with open(repo_tree_path, 'w') as file:
-        for file_path in file_paths:
+        for file_path in file_paths_repo:
             file.write(file_path + '\n')
 
     print("Directory tree generated for the Github repository.")
