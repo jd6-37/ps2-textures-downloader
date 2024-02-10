@@ -54,7 +54,7 @@ This app was built with this in mind! It has two special features that make it g
 
 2. It recognizes disabled textures (filenames prepended with a dash "-", Eg. `-file.png`) and won't try to download them again. It will even update the disabled/prepended file to the latest version!
 
-**IMPORTANT**: To utilize these features you must A) **put all of your custom and DLC textures in the `user-customs` folder** (putting it anywhere else will result in it being deleted or changed to the mod default) and B) for every default mod texture for which you have a custom texture, **leave the default texture in place** (don't remove or move it) **AND prepend the filename name with a dash** to disable it. Eg. if it was named `3a30272f374c5d47.png`, change the name to `-3a30272f374c5d47.png`. Now, because it is not the specific filename that the emulator is looking for, it's disabled; it doesn't exist as far as the emulator can tell. However, the updater tools still knows exactly what it is!
+**IMPORTANT**: To utilize these features you must A) **put all of your custom and DLC textures in the `user-customs` folder** (putting it anywhere else will result in it being deleted or changed to the mod default) and B) for every default mod texture for which you have a custom texture, **leave the default texture in place** (don't remove or move it) **AND prepend the filename name with a dash** to disable it. Eg. if it was named `3a30272f374c5d47.png`, change the name to `-3a30272f374c5d47.png`. Now, because it is not the specific filename that the emulator is looking for, it's disabled; it doesn't exist as far as the emulator can tell. However, the updater tools still knows exactly what it is! 
 
 <br>
 
