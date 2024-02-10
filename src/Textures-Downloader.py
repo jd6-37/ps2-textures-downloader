@@ -11,6 +11,7 @@ import subprocess  # Add this line to import subprocess module
 
 from utils.helpers import load_config_new, save_config_new, ConfigManager
 from utils.sync import main_sync
+from utils.download_repo import download_repo_main
 
 config_manager = ConfigManager()
 
@@ -102,7 +103,7 @@ class OnSaveButtonClickMixin:
             self.github_token_label.destroy()
 
         # Update the button text and color
-        button.config(text="Saved!", fg="green")
+        button.config(text="Saved! (restart app to apply)", fg="green")
 
         # Schedule the reversion after 5000 milliseconds (5 seconds)
         master.after(5000, lambda: button.config(text="Save Config", fg="black"))
@@ -232,7 +233,7 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
             self.terminal_text.delete(1.0, tk.END)
             thread = Thread(target=main_sync, args=(self.user_choice_var, self.terminal_text))
             thread.start()
-            
+        
 
 
         # Create a Canvas
@@ -316,6 +317,14 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
     def run_deep_scan(self):
         user_choice = "full_scan" if self.user_choice_var.get() == 2 else "only_new_content"
         run_subprocess('utils/fullscan.py', user_choice, self.terminal_text, self.master)  # Pass terminal_text parameter for deep scan
+
+    def on_save_button_click(self, config_dict, button, master):
+        # Call the mixin's on_save_button_click method
+        super().on_save_button_click(config_dict, button, master)
+        self.terminal_text.delete(1.0, tk.END)
+        self.terminal_text.insert(tk.END, "\n\nVariables updated. RESTART THE APP TO APPLY.\n\n")
+        self.terminal_text.yview(tk.END) 
+        self.terminal_text.see(tk.END)
 
 
 
@@ -494,12 +503,17 @@ class InstallerScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
             # Apply the text color to the label
             requirement_label.grid(row=0, column=0)
             requirement_label.config(fg=text_color)
+
+            def download_repo_main_wrapper():
+                self.terminal_text.delete(1.0, tk.END)
+                thread = Thread(target=download_repo_main, args=(json_url, local_directory, slus_folder, self.terminal_text))
+                thread.start()
             
             bold_font = ('TkDefaultFont', 15, 'bold')  # Adjust the font details as needed
             download_button = tk.Button(
                 button_frame,
                 text="Begin Installation",
-                command=run_installer,
+                command=download_repo_main_wrapper,
                 cursor="hand2",
                 width=20, 
                 height=2,
