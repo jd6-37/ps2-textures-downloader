@@ -10,6 +10,8 @@ from datetime import datetime  # Import the datetime class
 import subprocess  # Add this line to import subprocess module
 
 from utils.helpers import load_config_new, save_config_new, ConfigManager
+from utils.sync import main_sync
+from utils.download_repo import download_repo_main
 
 config_manager = ConfigManager()
 
@@ -30,45 +32,6 @@ json_url = config_manager.json_url
 github_repo_url = config_manager.github_repo_url
 # Initialize user_choice_var as a global variable
 user_choice_var = config_manager.user_choice_var
-
-def run_subprocess(script_name, user_choice, terminal_text, root):
-    user_choice = user_choice or ""
-    terminal_text.delete(1.0, tk.END)
-    if script_name == 'utils/main.py':
-        terminal_text.insert(tk.END, f"Starting Sync...\n")
-    elif script_name == 'utils/fullscan.py':
-        terminal_text.insert(tk.END, f"Starting deep scan and comparing local directory structure to Github. This will take a few minutes. Be patient and leave this window open...\n")
-    elif script_name == 'utils/download_repo.py':
-        terminal_text.insert(tk.END, f"Starting initial installation. This will take a while...\n")
-    else:
-        terminal_text.insert(tk.END, f"Starting {script_name}...\n")
-    root.update()
-
-    # if not local_directory or not github_token or not last_run_date:
-    #     print("Config settings missing. Cannot run {script_name}.")
-    #     return
-
-    command = ['python', script_name, '--user_choice', user_choice]
-
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-
-    def update_terminal():
-        while True:
-            output_line = process.stdout.readline()
-            if output_line == '' and process.poll() is not None:
-                break
-            terminal_text.insert(tk.END, output_line)
-            terminal_text.see(tk.END)
-
-        while True:
-            error_line = process.stderr.readline()
-            if error_line == '' and process.poll() is not None:
-                break
-            terminal_text.insert(tk.END, error_line)
-            terminal_text.see(tk.END)
-
-    Thread(target=update_terminal).start()
-
 
 class DebugModeMixin:
     def toggle_debug_mode(self):
@@ -101,7 +64,7 @@ class OnSaveButtonClickMixin:
             self.github_token_label.destroy()
 
         # Update the button text and color
-        button.config(text="Saved!", fg="green")
+        button.config(text="Saved! (restart app)", fg="green")
 
         # Schedule the reversion after 5000 milliseconds (5 seconds)
         master.after(5000, lambda: button.config(text="Save Config", fg="black"))
@@ -226,7 +189,12 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         tk.Label(self, text="PUT ALL OF YOUR CUSTOM TEXTURES AND DLC FILES\nIN 'user-customs' OR THEY WILL BE DELETED!", font=('TkDefaultFont', 13, 'bold'), fg="red", justify="left").grid(row=12, column=0, columnspan=2, pady=(0, 0))
         tk.Label(self, text="When using custom files, leave the default textures in place and\ndisable them by prepending the name with a dash (eg. '-file.png').", font=('TkDefaultFont', 12), justify="left").grid(row=13, column=0, columnspan=2,  padx=(20, 0), pady=(0, 5))
 
-
+        user_choice = "full_scan" if self.user_choice_var.get() == 2 else "only_new_content"
+        def main_sync_wrapper(event):
+            self.terminal_text.delete(1.0, tk.END)
+            thread = Thread(target=main_sync, args=(user_choice, self.terminal_text))
+            thread.start()
+        
 
 
         # Create a Canvas
@@ -241,12 +209,12 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         # Bind events to the canvas items (rounded rectangle and text)
         self.canvas.tag_bind(self.button_bg, "<Enter>", self.on_enter)
         self.canvas.tag_bind(self.button_bg, "<Leave>", self.on_leave)
-        self.canvas.tag_bind(self.button_bg, "<Button-1>", self.run_main)
+        self.canvas.tag_bind(self.button_bg, "<Button-1>", main_sync_wrapper)
 
 
         self.canvas.tag_bind(text_id, "<Enter>", self.on_enter)
         self.canvas.tag_bind(text_id, "<Leave>", self.on_leave)
-        self.canvas.tag_bind(text_id, "<Button-1>", self.run_main)
+        self.canvas.tag_bind(text_id, "<Button-1>", main_sync_wrapper)
 
         # Set the cursor when hovering
         self.canvas.bind("<Enter>", lambda event: self.canvas.config(cursor="hand2"))
@@ -310,6 +278,21 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
     def run_deep_scan(self):
         user_choice = "full_scan" if self.user_choice_var.get() == 2 else "only_new_content"
         run_subprocess('utils/fullscan.py', user_choice, self.terminal_text, self.master)  # Pass terminal_text parameter for deep scan
+
+    def on_save_button_click(self, config_dict, button, master):
+        # Call the mixin's on_save_button_click method
+        super().on_save_button_click(config_dict, button, master)
+        config_manager = ConfigManager()
+        # Access configuration variables
+        debug_mode = config_manager.debug_mode
+        initial_setup_done = config_manager.initial_setup_done
+        local_directory = config_manager.local_directory
+        github_token = config_manager.github_token
+        last_run_date = config_manager.last_run_date
+        self.terminal_text.delete(1.0, tk.END)
+        self.terminal_text.insert(tk.END, "\n\nVariables updated. RESTART THE APP TO APPLY.\n\n")
+        self.terminal_text.yview(tk.END) 
+        self.terminal_text.see(tk.END)
 
 
 
@@ -488,12 +471,17 @@ class InstallerScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
             # Apply the text color to the label
             requirement_label.grid(row=0, column=0)
             requirement_label.config(fg=text_color)
+
+            def download_repo_main_wrapper():
+                self.terminal_text.delete(1.0, tk.END)
+                thread = Thread(target=download_repo_main, args=(json_url, local_directory, slus_folder, self.terminal_text))
+                thread.start()
             
             bold_font = ('TkDefaultFont', 15, 'bold')  # Adjust the font details as needed
             download_button = tk.Button(
                 button_frame,
                 text="Begin Installation",
-                command=run_installer,
+                command=download_repo_main_wrapper,
                 cursor="hand2",
                 width=20, 
                 height=2,
@@ -552,6 +540,14 @@ class InstallerScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
 
         # Your widgets for screen 2
         # tk.Button(self, text="Switch to Post-Install Updater", command=switch_func).grid(row=1, column=0)
+
+    def on_save_button_click(self, config_dict, button, master):
+        # Call the mixin's on_save_button_click method
+        super().on_save_button_click(config_dict, button, master)
+        self.terminal_text.delete(1.0, tk.END)
+        self.terminal_text.insert(tk.END, "\n\nVariables updated. RESTART THE APP TO APPLY.\n\n")
+        self.terminal_text.yview(tk.END) 
+        self.terminal_text.see(tk.END)
   
 
 
