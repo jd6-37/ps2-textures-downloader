@@ -10,6 +10,7 @@ from datetime import datetime  # Import the datetime class
 import subprocess  # Add this line to import subprocess module
 
 from utils.helpers import load_config_new, save_config_new, ConfigManager
+from utils.sync import main_sync
 
 config_manager = ConfigManager()
 
@@ -31,43 +32,43 @@ github_repo_url = config_manager.github_repo_url
 # Initialize user_choice_var as a global variable
 user_choice_var = config_manager.user_choice_var
 
-def run_subprocess(script_name, user_choice, terminal_text, root):
-    user_choice = user_choice or ""
-    terminal_text.delete(1.0, tk.END)
-    if script_name == 'utils/main.py':
-        terminal_text.insert(tk.END, f"Starting Sync...\n")
-    elif script_name == 'utils/fullscan.py':
-        terminal_text.insert(tk.END, f"Starting deep scan and comparing local directory structure to Github. This will take a few minutes. Be patient and leave this window open...\n")
-    elif script_name == 'utils/download_repo.py':
-        terminal_text.insert(tk.END, f"Starting initial installation. This will take a while...\n")
-    else:
-        terminal_text.insert(tk.END, f"Starting {script_name}...\n")
-    root.update()
+# def run_subprocess(script_name, user_choice, terminal_text, root):
+#     user_choice = user_choice or ""
+#     terminal_text.delete(1.0, tk.END)
+#     if script_name == 'utils/main.py':
+#         terminal_text.insert(tk.END, f"Starting Sync...\n")
+#     elif script_name == 'utils/fullscan.py':
+#         terminal_text.insert(tk.END, f"Starting deep scan and comparing local directory structure to Github. This will take a few minutes. Be patient and leave this window open...\n")
+#     elif script_name == 'utils/download_repo.py':
+#         terminal_text.insert(tk.END, f"Starting initial installation. This will take a while...\n")
+#     else:
+#         terminal_text.insert(tk.END, f"Starting {script_name}...\n")
+#     root.update()
 
-    # if not local_directory or not github_token or not last_run_date:
-    #     print("Config settings missing. Cannot run {script_name}.")
-    #     return
+#     # if not local_directory or not github_token or not last_run_date:
+#     #     print("Config settings missing. Cannot run {script_name}.")
+#     #     return
 
-    command = ['python', script_name, '--user_choice', user_choice]
+#     command = ['python', script_name, '--user_choice', user_choice]
 
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+#     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
-    def update_terminal():
-        while True:
-            output_line = process.stdout.readline()
-            if output_line == '' and process.poll() is not None:
-                break
-            terminal_text.insert(tk.END, output_line)
-            terminal_text.see(tk.END)
+#     def update_terminal():
+#         while True:
+#             output_line = process.stdout.readline()
+#             if output_line == '' and process.poll() is not None:
+#                 break
+#             terminal_text.insert(tk.END, output_line)
+#             terminal_text.see(tk.END)
 
-        while True:
-            error_line = process.stderr.readline()
-            if error_line == '' and process.poll() is not None:
-                break
-            terminal_text.insert(tk.END, error_line)
-            terminal_text.see(tk.END)
+#         while True:
+#             error_line = process.stderr.readline()
+#             if error_line == '' and process.poll() is not None:
+#                 break
+#             terminal_text.insert(tk.END, error_line)
+#             terminal_text.see(tk.END)
 
-    Thread(target=update_terminal).start()
+#     Thread(target=update_terminal).start()
 
 
 class DebugModeMixin:
@@ -227,6 +228,11 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         tk.Label(self, text="When using custom files, leave the default textures in place and\ndisable them by prepending the name with a dash (eg. '-file.png').", font=('TkDefaultFont', 12), justify="left").grid(row=13, column=0, columnspan=2,  padx=(20, 0), pady=(0, 5))
 
 
+        def main_sync_wrapper(event):
+            self.terminal_text.delete(1.0, tk.END)
+            thread = Thread(target=main_sync, args=(self.user_choice_var, self.terminal_text))
+            thread.start()
+            
 
 
         # Create a Canvas
@@ -241,12 +247,12 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         # Bind events to the canvas items (rounded rectangle and text)
         self.canvas.tag_bind(self.button_bg, "<Enter>", self.on_enter)
         self.canvas.tag_bind(self.button_bg, "<Leave>", self.on_leave)
-        self.canvas.tag_bind(self.button_bg, "<Button-1>", self.run_main)
+        self.canvas.tag_bind(self.button_bg, "<Button-1>", main_sync_wrapper)
 
 
         self.canvas.tag_bind(text_id, "<Enter>", self.on_enter)
         self.canvas.tag_bind(text_id, "<Leave>", self.on_leave)
-        self.canvas.tag_bind(text_id, "<Button-1>", self.run_main)
+        self.canvas.tag_bind(text_id, "<Button-1>", main_sync_wrapper)
 
         # Set the cursor when hovering
         self.canvas.bind("<Enter>", lambda event: self.canvas.config(cursor="hand2"))

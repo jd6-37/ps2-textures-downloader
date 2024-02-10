@@ -243,15 +243,11 @@ def compute_local_file_hash(file_path, debug_mode=False):
     s = hashlib.sha1()
     # Add blob, size of file and '\0' character
     s.update(("blob %u\0" % len(data)).encode('utf-8'))
-    s.update(data)
-    if debug_mode == True:
-      print(f"  Hash check file path: {file_path}")
+    s.update(data)   
     return s.hexdigest()
 
 
 def compare_hashes(local_hash, github_hash, file_path, debug_mode=False):
-    if debug_mode == True:
-      print(f"  Comparing hashes for: {file_path}")  # Debugging output
     return local_hash == github_hash
 
 
@@ -304,8 +300,7 @@ def get_and_print_local_time():
 
     local_time_string = f"{current_time_str} {timezone_abbreviation}"
 
-    print("Current time:", local_time_string)
-
+    return local_time_string
 
 def format_time_difference(start_time, end_time):
     time_difference = end_time - start_time

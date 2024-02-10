@@ -11,7 +11,7 @@ import pytz
 from urllib.parse import urljoin, quote
 
 # Import helper functions
-from helpers import load_config_new, ConfigManager, remove_empty_folders, check_rate_limits, localize_reset_timestamp, get_and_print_local_time, format_time_difference, get_current_time
+from utils.helpers import load_config_new, ConfigManager, remove_empty_folders, check_rate_limits, localize_reset_timestamp, get_and_print_local_time, format_time_difference, get_current_time
 
 
 config_manager = ConfigManager()
@@ -39,6 +39,7 @@ repo_tree_path = "utils/repo_directory_tree.txt"
 
 # Set dry_run flag
 dry_run = False
+
 
 
 def get_tree_contents(owner, repo, subdirectory='', branch_name='main'):
@@ -82,7 +83,7 @@ def save_repo_directory_tree_to_file(tree_data, current_path='', file_paths_repo
     return file_paths_repo
 
 
-def save_local_directory_tree_to_file(directory, output_file=local_tree_path):
+def save_local_directory_tree_to_file(directory, terminal_text, output_file=local_tree_path):
     file_paths = []
     for root, dirs, files in os.walk(directory):
         for file_name in files:
@@ -101,7 +102,7 @@ def save_local_directory_tree_to_file(directory, output_file=local_tree_path):
         for file_path in file_paths:
             file.write(file_path + '\n')
 
-    print("Directory tree generated for the local directory.")
+    terminal_text.insert(tk.END, "Directory tree generated for the local directory.\n")
     sys.stdout.flush()  # Force flush the output
 
 
@@ -122,7 +123,7 @@ def list_files_not_in_repo(local_tree_path, repo_tree_path, local_directory, dry
     local_full_paths = [os.path.join(local_directory, entry) for entry in local_files]
     repo_full_paths = [os.path.join(local_directory, entry) for entry in repo_files]
 
-    # Filter out files with "user-customs" in their path and filenames starting with a dash ("-")
+    # Filter out files with "user-customs" in their path and filenames starting with a dash ("-\n")
     local_full_paths = [path for path in local_full_paths if "user-customs" not in path and not os.path.basename(path).startswith("-")]
     repo_full_paths = [path for path in repo_full_paths if "user-customs" not in path]
 
@@ -138,7 +139,8 @@ def list_files_not_in_repo(local_tree_path, repo_tree_path, local_directory, dry
 
 
 
-def list_files_to_download(local_tree_path, repo_tree_path, local_directory, dry_run=True):
+def list_files_to_download(local_tree_path, repo_tree_path, local_directory, terminal_text, dry_run=True):
+
     # Check if the local files already exist on the computer
     with open(local_tree_path, 'r') as local_file:
         local_files = [line.strip() for line in local_file.readlines()]
@@ -154,13 +156,13 @@ def list_files_to_download(local_tree_path, repo_tree_path, local_directory, dry
     # Build full paths using the provided base path
     repo_full_paths = [os.path.join(local_directory, entry) for entry in repo_files]
 
-    # Filter out files with "user-customs" in their path and filenames starting with a dash ("-")
+    # Filter out files with "user-customs" in their path and filenames starting with a dash ("-\n")
     local_full_paths = [path for path in local_full_paths if "user-customs" not in path and not path.split("/")[-1].startswith("-")]
     repo_full_paths = [path for path in repo_full_paths if "user-customs" not in path]
 
     # Find files in repo directory but not in the local directory
     files_to_download = set(repo_full_paths) - set(local_full_paths)
-
+    
     # Check for prepended files with a dash and exclude them if the original file exists
     for file_to_download in list(files_to_download):
         original_filename = os.path.basename(file_to_download)
@@ -168,13 +170,11 @@ def list_files_to_download(local_tree_path, repo_tree_path, local_directory, dry
         if os.path.exists(os.path.join(local_directory, prepended_file)):
             files_to_download.discard(file_to_download)
 
-
     # Remove local_directory from the paths
     files_to_download = [os.path.relpath(path, local_directory) for path in files_to_download]
 
     # Filter paths that do not begin with "SLUS-XXXXX/replacements/"
     files_to_download = [path for path in files_to_download if path.startswith(f"{slus_folder}\\replacements\\") or path.startswith(f"{slus_folder}/replacements/")]
-
 
     # Check if the local file already exists on the computer before further processing
     files_to_download = [path for path in files_to_download if not os.path.exists(os.path.join(local_directory, path))]
@@ -183,18 +183,18 @@ def list_files_to_download(local_tree_path, repo_tree_path, local_directory, dry
 
 
 
-def delete_files_not_in_repo(files_to_delete, dry_run=True):
+def delete_files_not_in_repo(files_to_delete, terminal_text, dry_run=True):
 
     # Check if there are files to be deleted
     if files_to_delete:
-        print("\n\nWAITING FOR YOUR RESPONSE IN THE POP-UP DIALAOG WINDOW...\n")
+        terminal_text.insert(tk.END, "\nWAITING FOR YOUR RESPONSE IN THE POP-UP DIALAOG WINDOW...\n")
         sys.stdout.flush()  # Force flush the output
         # Prompt the user to continue with deletion
         if not dry_run:
             confirmation_message = (
                 "Files were found to exist locally that are not in Github. These could cause issues. It is advised to delete them."
                 "\nIf they are your own custom files or DLC, move them to the 'user-customs' folder where they will be ignored."
-                f"\n\nThe {len(files_to_delete)} files listed in the output window WILL BE DELETED. Do you want to proceed?"
+                f"\nThe {len(files_to_delete)} files listed in the output window WILL BE DELETED. Do you want to proceed?"
             )
             confirmation = messagebox.askyesno("Confirmation", confirmation_message)
 
@@ -208,47 +208,47 @@ def delete_files_not_in_repo(files_to_delete, dry_run=True):
                             os.remove(file_path)
                             deleted_files.append(file_path)
                         except Exception as e:
-                            messagebox.showerror("Error", f"Error deleting file {file_path}: {e}")
+                            messagebox.showerror("Error", f"Error deleting file {file_path}: {e}\n")
                     else:
-                        messagebox.showwarning("File Not Found", f"File not found: {file_path}")
+                        messagebox.showwarning("File Not Found", f"File not found: {file_path}\n")
 
 
                 # Print the list of deleted files
-                print("\nDeleted Files:")
+                # terminal_text.insert(tk.END, "\nFiles deleted.\n\n")
+                # if debug_mode == True:
+                terminal_text.insert(tk.END, "\nDeleted these Files:\n\n")
                 for deleted_file in deleted_files:
-                    print(deleted_file)
+                    terminal_text.insert(tk.END,  f"[-] {deleted_file}\n")
                     sys.stdout.flush()  # Force flush the output
 
-                print("\nDeleted Files", "\nDeleted files:\n" + "\n".join(deleted_files))
+                terminal_text.insert(tk.END, "\nDeleted Files", "\nDeleted files:\n" + "\n".join(deleted_files))
                 sys.stdout.flush()  # Force flush the output
             else:
-                print("\nDeletion cancelled.")
+                terminal_text.insert(tk.END, "\nDeletion cancelled.\n\n")
                 sys.stdout.flush()  # Force flush the output
         else:
-            print("\nDry Run", "(Dry run) Deletion cancelled.")
+            terminal_text.insert(tk.END, "\nDry Run", "(Dry run) Deletion cancelled.\n\n")
             sys.stdout.flush()  # Force flush the output
     else:
-        print("\n*** No Stray Files to Delete ***", "\nYou don't have any extra files that aren't in the Github repo (other than your custom textures and DLC in the 'user-customs'). Great!")
+        terminal_text.insert(tk.END, "\n*** No Stray Files to Delete ***", "\nYou don't have any extra files that aren't in the Github repo (other than your custom textures and DLC in the 'user-customs'). Great!\n\n")
+        terminal_text.insert(tk.END, "\n")
         sys.stdout.flush()  # Force flush the output
 
 
 # DOWNLOAD MISSING 
-def download_missing_files(github_repo_url, local_directory, branch_name, files_to_download, github_token, debug_mode=False):
+def download_missing_files(github_repo_url, local_directory, branch_name, files_to_download, github_token, terminal_text, debug_mode=False):
     api_base_url = f"https://api.github.com/repos/{github_repo_url}/contents/textures/"
     headers = {"Authorization": f"Bearer {github_token}"} if github_token else {}
     counter_files_downloaded = 0
 
     for relative_path in files_to_download:
         # Replace %5C with slashes, if any
-        corrected_path = relative_path.replace("%5C", "/").replace("\\", "/")
+        corrected_path = relative_path.replace("%5C", "/\n").replace("\\", "/\n")
         # Construct the API URL for the file
-        api_url = urljoin(api_base_url, f"{corrected_path}?ref={branch_name}")
-        print(f"MADE API URL:\n{api_url}\n")
+        api_url = urljoin(api_base_url, f"{corrected_path}?ref={branch_name}\n")
         page = 1
 
         while api_url:
-            # Debugging the url format
-            print(f"\nFILE PATH for URL:\n{api_url}\n")
 
             try:
                 response = requests.get(api_url, headers=headers)
@@ -271,16 +271,16 @@ def download_missing_files(github_repo_url, local_directory, branch_name, files_
                             with open(file_path, 'wb') as file:
                                 file.write(download_response.content)
                             counter_files_downloaded += 1
-                            print(f"Downloaded: {relative_path}")
+                            terminal_text.insert(tk.END, f"Downloaded: {relative_path}\n")
                             sys.stdout.flush()  
                         else:
-                            print(f"Failed to download file: {relative_path}")
+                            terminal_text.insert(tk.END, f"Failed to download file: {relative_path}\n\n")
                             sys.stdout.flush() 
                     else:
-                        print(f"Skipping existing file: {relative_path}")
+                        terminal_text.insert(tk.END, f"Skipping existing file: {relative_path}\n\n")
                         sys.stdout.flush() 
                 else:
-                    print(f"Download URL not available for file: {relative_path}")
+                    terminal_text.insert(tk.END, f"Download URL not available for file: {relative_path}\n\n")
                     sys.stdout.flush() 
 
                 # Check for pagination information in the response headers
@@ -289,7 +289,7 @@ def download_missing_files(github_repo_url, local_directory, branch_name, files_
                 page += 1
 
             except requests.exceptions.RequestException as e:
-                print(f"Failed to fetch file information. Error: {e}")
+                terminal_text.insert(tk.END, f"Failed to fetch file information. Error: {e}\n\n")
                 sys.stdout.flush() 
 
     return counter_files_downloaded
@@ -305,33 +305,34 @@ def get_next_page_url(link_header):
     return None
 
 
-def download_files_not_in_local(files_to_download, dry_run=True):
+def download_files_not_in_local(files_to_download, terminal_text, dry_run=True):
 
     # Check if there are files to download
     if files_to_download:
-        print("\n\nWAITING FOR YOUR RESPONSE IN THE POP-UP DIALAOG WINDOW...:\n")
+        terminal_text.insert(tk.END, "\nWAITING FOR YOUR RESPONSE IN THE POP-UP DIALAOG WINDOW...\n")
         sys.stdout.flush()
         # Prompt the user to continue with downloading
         if not dry_run:
             confirmation_message = (
                 "You're missing files that are in the Github repo. This will cause issues! It is highly recommended that you download them now. See the output window for the list of files."
-                f"\n\nOkay to download the {len(files_to_download)} missing files?"
+                f"\nOkay to download the {len(files_to_download)} missing files?"
             )
             confirmation = messagebox.askyesno("Confirmation", confirmation_message)
 
             if confirmation:
-                print("\nDownloading files:\n")
+                terminal_text.insert(tk.END, "\nDownloading files:\n\n")
                 sys.stdout.flush()
                 # Download files
-                download_missing_files(github_repo_url, local_directory, branch_name, files_to_download, github_token, debug_mode=True)
+                download_missing_files(github_repo_url, local_directory, branch_name, files_to_download, github_token, terminal_text, debug_mode=True)
             else:
-                print("\nDownload cancelled.")
+                terminal_text.insert(tk.END, "\nDownload cancelled.\n\n")
                 sys.stdout.flush()
         else:
-            print("\nDry Run. Download cancelled.")
+            terminal_text.insert(tk.END, "\nDry Run. Download cancelled.\n\n")
             sys.stdout.flush()
     else:
-        print("\n*** No Missing Files to download ***", "\nYou have everything in the Github repo. Great!")
+        terminal_text.insert(tk.END, "\n*** No Missing Files to download ***", "\nYou have everything in the Github repo. Great!\n\n")
+        terminal_text.insert(tk.END, "\n")
         sys.stdout.flush()
 
 
@@ -346,27 +347,30 @@ def create_message_window(title, message):
     confirmation = messagebox.askyesno(title, message)
 
 
-def run_scan_and_print_output():
+def run_scan_and_print_output(terminal_text):
+  
+    def scroll_terminal():
+        terminal_text.yview(tk.END) 
+        terminal_text.see(tk.END)
 
-    print()  # Add a line break 
-    print("# - - - - - - - - -   Comparing Directory Trees   - - - - - - - - - - #")
-    print("#                                                                     #")
-    print("#                                                                     #")
-    print()  # Add a line break 
-    sys.stdout.flush()  # Force flush the output
+
+    terminal_text.insert(tk.END, "# - - - - - - - - -   Comparing Directory Trees   - - - - - - - - - #\n")
+    terminal_text.insert(tk.END, "#                                                                   #\n")
+    terminal_text.insert(tk.END, "\n")  # Add a line break 
+    scroll_terminal()
 
     # Save the local directory tree to a file
-    print(f"Analyzing local directory structure...")
-    print()
-    sys.stdout.flush()  # Force flush the output
-    save_local_directory_tree_to_file(local_directory)
-    print()
-    sys.stdout.flush()  # Force flush the output
+    terminal_text.insert(tk.END, f"Analyzing local directory structure...\n")
+    terminal_text.insert(tk.END, "\n")
+    scroll_terminal()
+    save_local_directory_tree_to_file(local_directory, terminal_text)
+    terminal_text.insert(tk.END, "\n")
+    scroll_terminal()
 
     # Get the contents of the github repo root directory 
-    print(f"Analyzing Github repo directory structure...")
-    print()
-    sys.stdout.flush()  # Force flush the output
+    terminal_text.insert(tk.END, f"Analyzing Github repo directory structure...\n")
+    terminal_text.insert(tk.END, "\n")
+    scroll_terminal()
 
     # Step 1: Fetch the repository tree
     tree_data = get_tree_contents(owner, repo, subdirectory, branch_name)
@@ -382,54 +386,54 @@ def run_scan_and_print_output():
         for file_path in file_paths_repo:
             file.write(file_path + '\n')
 
-    print("Directory tree generated for the Github repository.")
-    sys.stdout.flush()  # Force flush the output
+    terminal_text.insert(tk.END, "Directory tree generated for the Github repository.\n")
+    scroll_terminal()
 
 
     # PROCEED TO PRUNING OR DOWNLOADING -------------------------
-    print("\nComparing the Github repo directory structure to your local textures folder...")
-    sys.stdout.flush()  # Force flush the output
+    terminal_text.insert(tk.END, "\nComparing the Github repo directory structure to your local textures folder...\n")
+    scroll_terminal()
 
 
     # Perform the deletion of local files not in the repo (or dry run) with user prompt
     files_to_delete = list_files_not_in_repo(local_tree_path, repo_tree_path, local_directory, dry_run)
     if files_to_delete:
-        print("\nEXTRA Files to be Deleted:")
-        sys.stdout.flush()  # Flush the buffer to ensure immediate display
+        terminal_text.insert(tk.END, "\nEXTRA Files to be Deleted:\n\n")
+        scroll_terminal()
 
         for file_path in files_to_delete:
-            print(f"- {file_path}")
-            sys.stdout.flush()  # Flush the buffer after each line
+            terminal_text.insert(tk.END, f"- {file_path}\n")
+            scroll_terminal()
 
     # Delete the files or print a message saying no files to delete
-    delete_files_not_in_repo(files_to_delete, dry_run)
-    sys.stdout.flush()  # Force flush the output
+    delete_files_not_in_repo(files_to_delete, terminal_text, dry_run)
+    scroll_terminal()
 
 
     # Perform the download of missing files with user prompt
-    files_to_download = list_files_to_download(local_tree_path, repo_tree_path, local_directory, dry_run)
+    files_to_download = list_files_to_download(local_tree_path, repo_tree_path, local_directory, terminal_text, dry_run)
     if files_to_download:
-        print("\nMISSING Files to Download:")
-        sys.stdout.flush()  # Flush the buffer to ensure immediate display
+        terminal_text.insert(tk.END, "\nMISSING Files to Download:\n\n")
+        scroll_terminal()
         for file_path in files_to_download:
-            if file_path.startswith(f"{slus_folder}/replacements/"):
+            if file_path.startswith(f"{slus_folder}/replacements/\n"):
                 # Remove the prefix before printing
-                print(f"- {file_path[len(f'{slus_folder}/replacements/'):]}")
+                terminal_text.insert(tk.END, f"- {file_path[len(f'{slus_folder}/replacements/'):]}\n")
             else:
                 # Print as-is
-                print(f"- {file_path}")
-            sys.stdout.flush()  # Flush the buffer after each line
+                terminal_text.insert(tk.END, f"- {file_path}\n")
+            scroll_terminal()
 
     # Download the files or print a message saying no files to download
-    download_files_not_in_local(files_to_download, dry_run)
-    sys.stdout.flush()  # Force flush the output
+    download_files_not_in_local(files_to_download, terminal_text, dry_run)
+    scroll_terminal()
 
 
     # Call the function to delete empty folders after syncing files
     remove_empty_folders(local_directory, debug_mode=False)
 
-    print()  # Add a line break 
-    print("#                                                                   #")
-    print("# - - - - - -   Finished Directory Trees Comparison   - - - - - - - #")
-    print()
-    sys.stdout.flush()  # Force flush the output
+    terminal_text.insert(tk.END, "\n")  # Add a line break 
+    terminal_text.insert(tk.END, "#                                                                   #\n")
+    terminal_text.insert(tk.END, "# - - - - - -   Finished Directory Trees Comparison   - - - - - - - #\n")
+    terminal_text.insert(tk.END, "\n")
+    scroll_terminal()
