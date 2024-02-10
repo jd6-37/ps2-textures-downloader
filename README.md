@@ -88,7 +88,7 @@ With python and all of the required modules installed, you can now start the app
 
     python Textures-Downloader.py
 
-or if that doesn't work, try...
+or if that doesn't work, try... 
 
     python3 Textures-Downloader.py
 
