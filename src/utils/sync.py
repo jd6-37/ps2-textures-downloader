@@ -56,6 +56,9 @@ config_path = "config.txt"
 
 def main_sync(user_choice, terminal_text):
 
+    # For write_last_run_date
+    config_path = "config.txt"
+
     def scroll_terminal():
         terminal_text.yview(tk.END) 
         terminal_text.see(tk.END)
@@ -63,24 +66,17 @@ def main_sync(user_choice, terminal_text):
     # Function to write the last run date to config.txt in UTC format
     def write_last_run_date():
         try:
-            with open(config_path, 'r') as config_file:
-                lines = config_file.readlines()
+            # Get the current UTC time
+            utc_now = datetime.utcnow().replace(microsecond=0, tzinfo=pytz.UTC)
+            # Format and convert the UTC time to a string with milliseconds
+            utc_time_str = utc_now.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+            last_run_date = utc_time_str
+            save_config_new({'last_run_date': last_run_date})
+            terminal_text.insert(tk.END, "Last Sync Date updated.\n")
 
-            # Find the line containing last_run_date and update it
-            for i, line in enumerate(lines):
-                if line.startswith("last_run_date:\n"):
-                    # Get the current UTC time
-                    utc_now = datetime.utcnow().replace(microsecond=0, tzinfo=pytz.UTC)
-                    # Format and convert the UTC time to a string with milliseconds
-                    utc_time_str = utc_now.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-                    lines[i] = f"last_run_date: {utc_time_str}\n"
-
-            # Write the updated lines back to config.txt
-            with open(config_path, 'w') as config_file:
-                config_file.writelines(lines)
-        except FileNotFoundError:
+        except:
             # Handle the case when the file doesn't exist
-            terminal_text.insert(tk.END, "Config file not found.\n")
+            terminal_text.insert(tk.END, "Error writing Sync Date updated. Try updating manually.\n")
             scroll_terminal()
 
 
@@ -182,7 +178,7 @@ def main_sync(user_choice, terminal_text):
                     commit_date = datetime.strptime(commit['commit']['author']['date'], '%Y-%m-%dT%H:%M:%SZ')
                     commit_hash = commit['sha'][:7]
 
-                    if args.user_choice == 'full_scan' or commit_date > last_run_date:
+                    if args.user_choice in ('full_scan', 'PY_VAR2') or commit_date > last_run_date:
                         counter_valid_commits += 1
                         terminal_text.insert(tk.END, "\n")
                         terminal_text.insert(tk.END, f"****** GIT COMMIT ({commit_hash}) DATE: {commit_date} ******\n")
@@ -798,7 +794,8 @@ def main_sync(user_choice, terminal_text):
         scroll_terminal()
 
         # Save the current run date to the config file
-        # write_last_run_date()
+        write_last_run_date()
+
     except Exception as e:
         terminal_text.insert(tk.END, "\n")
         terminal_text.insert(tk.END, f"Error downloading files: {e}\n")

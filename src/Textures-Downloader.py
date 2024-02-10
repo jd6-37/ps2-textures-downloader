@@ -33,45 +33,6 @@ github_repo_url = config_manager.github_repo_url
 # Initialize user_choice_var as a global variable
 user_choice_var = config_manager.user_choice_var
 
-# def run_subprocess(script_name, user_choice, terminal_text, root):
-#     user_choice = user_choice or ""
-#     terminal_text.delete(1.0, tk.END)
-#     if script_name == 'utils/main.py':
-#         terminal_text.insert(tk.END, f"Starting Sync...\n")
-#     elif script_name == 'utils/fullscan.py':
-#         terminal_text.insert(tk.END, f"Starting deep scan and comparing local directory structure to Github. This will take a few minutes. Be patient and leave this window open...\n")
-#     elif script_name == 'utils/download_repo.py':
-#         terminal_text.insert(tk.END, f"Starting initial installation. This will take a while...\n")
-#     else:
-#         terminal_text.insert(tk.END, f"Starting {script_name}...\n")
-#     root.update()
-
-#     # if not local_directory or not github_token or not last_run_date:
-#     #     print("Config settings missing. Cannot run {script_name}.")
-#     #     return
-
-#     command = ['python', script_name, '--user_choice', user_choice]
-
-#     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-
-#     def update_terminal():
-#         while True:
-#             output_line = process.stdout.readline()
-#             if output_line == '' and process.poll() is not None:
-#                 break
-#             terminal_text.insert(tk.END, output_line)
-#             terminal_text.see(tk.END)
-
-#         while True:
-#             error_line = process.stderr.readline()
-#             if error_line == '' and process.poll() is not None:
-#                 break
-#             terminal_text.insert(tk.END, error_line)
-#             terminal_text.see(tk.END)
-
-#     Thread(target=update_terminal).start()
-
-
 class DebugModeMixin:
     def toggle_debug_mode(self):
         debug_mode = self.debug_mode_var.get()
@@ -103,7 +64,7 @@ class OnSaveButtonClickMixin:
             self.github_token_label.destroy()
 
         # Update the button text and color
-        button.config(text="Saved! (restart app to apply)", fg="green")
+        button.config(text="Saved! (restart app)", fg="green")
 
         # Schedule the reversion after 5000 milliseconds (5 seconds)
         master.after(5000, lambda: button.config(text="Save Config", fg="black"))
@@ -228,10 +189,10 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         tk.Label(self, text="PUT ALL OF YOUR CUSTOM TEXTURES AND DLC FILES\nIN 'user-customs' OR THEY WILL BE DELETED!", font=('TkDefaultFont', 13, 'bold'), fg="red", justify="left").grid(row=12, column=0, columnspan=2, pady=(0, 0))
         tk.Label(self, text="When using custom files, leave the default textures in place and\ndisable them by prepending the name with a dash (eg. '-file.png').", font=('TkDefaultFont', 12), justify="left").grid(row=13, column=0, columnspan=2,  padx=(20, 0), pady=(0, 5))
 
-
+        user_choice = "full_scan" if self.user_choice_var.get() == 2 else "only_new_content"
         def main_sync_wrapper(event):
             self.terminal_text.delete(1.0, tk.END)
-            thread = Thread(target=main_sync, args=(self.user_choice_var, self.terminal_text))
+            thread = Thread(target=main_sync, args=(user_choice, self.terminal_text))
             thread.start()
         
 
@@ -321,6 +282,13 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
     def on_save_button_click(self, config_dict, button, master):
         # Call the mixin's on_save_button_click method
         super().on_save_button_click(config_dict, button, master)
+        config_manager = ConfigManager()
+        # Access configuration variables
+        debug_mode = config_manager.debug_mode
+        initial_setup_done = config_manager.initial_setup_done
+        local_directory = config_manager.local_directory
+        github_token = config_manager.github_token
+        last_run_date = config_manager.last_run_date
         self.terminal_text.delete(1.0, tk.END)
         self.terminal_text.insert(tk.END, "\n\nVariables updated. RESTART THE APP TO APPLY.\n\n")
         self.terminal_text.yview(tk.END) 
@@ -572,6 +540,14 @@ class InstallerScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
 
         # Your widgets for screen 2
         # tk.Button(self, text="Switch to Post-Install Updater", command=switch_func).grid(row=1, column=0)
+
+    def on_save_button_click(self, config_dict, button, master):
+        # Call the mixin's on_save_button_click method
+        super().on_save_button_click(config_dict, button, master)
+        self.terminal_text.delete(1.0, tk.END)
+        self.terminal_text.insert(tk.END, "\n\nVariables updated. RESTART THE APP TO APPLY.\n\n")
+        self.terminal_text.yview(tk.END) 
+        self.terminal_text.see(tk.END)
   
 
 
