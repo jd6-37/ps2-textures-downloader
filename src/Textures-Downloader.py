@@ -15,7 +15,7 @@ from utils.download_repo import download_repo_main
 
 config_manager = ConfigManager()
 
-# Access configuration variables
+# Access co nfiguration variables
 debug_mode = config_manager.debug_mode
 initial_setup_done = config_manager.initial_setup_done
 local_directory = config_manager.local_directory
@@ -140,7 +140,7 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
             save_config_new({'last_run_date': default_last_run_date.strftime('%Y-%m-%d %H:%M:%S.%f')})
         
         # Create a StringVar for initial_setup_done because it doesn't have an entry field
-        initial_setup_var = tk.StringVar(value="True")  # Set the initial value as needed
+        initial_setup_var = tk.StringVar(value="False")  # Set the initial value as needed
 
         # Save Button
         config_dict_main = {
@@ -183,6 +183,10 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         self.terminal_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.terminal_frame.grid(row=11, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
+       
+        # Insert the warning text
+        self.terminal_text.insert(tk.END, "!!! ATTENTION !!! This Run Sync tool is only intented to be used for updates AFTER you have completed the initial installation. If you are attemping to do a first time download/install of the textures pack, click the 'Fresh Install' button at the bottom right of this screen.\n")
+        self.terminal_text.yview(tk.END)  # Scroll to the end to make the new text visible
 
 
 
@@ -438,7 +442,7 @@ class InstallerScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
             self.github_token_label.grid(row=3, column=1, columnspan=2, pady=(0, 10), padx=(5, 0), sticky="w")
         
         # Create a StringVar for initial_setup_done because it doesn't have an entry field
-        initial_setup_var = tk.StringVar(value="True")  # Set the initial value as needed
+        initial_setup_var = tk.StringVar(value="False")  # Set the initial value as needed
 
         # Save Button Next to Input Field
         # config_dict = {"local_directory": local_directory_entry_first, "github_token": github_token_entry, "initial_setup_done": initial_setup_var}
