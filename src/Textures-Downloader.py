@@ -142,12 +142,15 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         # Create a StringVar for initial_setup_done because it doesn't have an entry field
         initial_setup_var = tk.StringVar(value="False")  # Set the initial value as needed
 
+        # Read the config for the value 
+        # initial_setup_var = tk.StringVar(value="False")  # Set the initial value as needed
+
         # Save Button
         config_dict_main = {
             "local_directory": local_directory_entry,
             "github_token": github_token_entry,
             "last_run_date": last_run_date_entry,
-            "initial_setup_done": initial_setup_var,
+            # "initial_setup_done": initial_setup_var,
         }
         save_button_on_main = tk.Button(self, text="Save Configuration", command=lambda: self.on_save_button_click(config_dict_main, save_button_on_main, self), justify="left", width=20, cursor="hand2")
         save_button_on_main.grid(row=3, column=2, rowspan=4, pady=20, padx=(0, 60))
