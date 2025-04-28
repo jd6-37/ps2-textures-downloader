@@ -36,6 +36,91 @@ github_repo_url = config_manager.github_repo_url
 # Initialize user_choice_var as a global variable
 user_choice_var = config_manager.user_choice_var
 
+class MainApplication(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+
+        # Set a reasonable initial size
+        self.geometry("900x700")
+        self.minsize(900, 600)
+
+        # Configure main window grid
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Create main container
+        self.main_container = ttk.Frame(self)
+        self.main_container.grid(row=0, column=0, sticky="nsew")
+        self.main_container.grid_rowconfigure(0, weight=1)
+        self.main_container.grid_columnconfigure(0, weight=1)
+
+        # Create canvas and scrollbars
+        self.canvas = tk.Canvas(self.main_container)
+        self.vsb = ttk.Scrollbar(self.main_container, orient="vertical", command=self.canvas.yview)
+        self.hsb = ttk.Scrollbar(self.main_container, orient="horizontal", command=self.canvas.xview)
+        
+        # Create scrollable frame
+        self.scrollable_frame = ttk.Frame(self.canvas)
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        # Create window inside canvas
+        self.canvas_frame = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        
+        # Configure canvas
+        self.canvas.configure(
+            yscrollcommand=self.vsb.set,
+            xscrollcommand=self.hsb.set
+        )
+        
+        # Grid layout
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.vsb.grid(row=0, column=1, sticky="ns")
+        self.hsb.grid(row=1, column=0, sticky="ew")
+
+        # Configure scrolling
+        self.bind_scroll()
+
+        # Initialize current_frame attribute
+        self.current_frame = None
+
+        # Use the existing boolean variable initial_setup_done
+        if not initial_setup_done:
+            self.switch_frame(InstallerScreen)
+        else:
+            self.switch_frame(PostInstallScreen)
+
+        # Configure canvas resize
+        self.canvas.bind('<Configure>', self.on_canvas_configure)
+
+    def on_canvas_configure(self, event):
+        # Update the scrollable region when the canvas is resized
+        self.canvas.itemconfig(self.canvas_frame, width=event.width)
+
+    def bind_scroll(self):
+        # Mouse wheel scrolling
+        def _on_mousewheel(event):
+            # Vertical scroll with mousewheel
+            if not event.state:  # No modifier keys
+                self.canvas.yview_scroll(int(-1 * (event.delta/120)), "units")
+            # Horizontal scroll with Shift + mousewheel
+            elif event.state & 1:  # Shift key
+                self.canvas.xview_scroll(int(-1 * (event.delta/120)), "units")
+
+        # Bind for Windows/macOS
+        self.canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        self.canvas.bind_all("<Shift-MouseWheel>", _on_mousewheel)
+
+        # Bind keyboard navigation
+        self.canvas.bind_all("<Up>", lambda e: self.canvas.yview_scroll(-1, "units"))
+        self.canvas.bind_all("<Down>", lambda e: self.canvas.yview_scroll(1, "units"))
+        self.canvas.bind_all("<Left>", lambda e: self.canvas.xview_scroll(-1, "units"))
+        self.canvas.bind_all("<Right>", lambda e: self.canvas.xview_scroll(1, "units"))
+        self.canvas.bind_all("<Prior>", lambda e: self.canvas.yview_scroll(-1, "pages"))
+        self.canvas.bind_all("<Next>", lambda e: self.canvas.yview_scroll(1, "pages"))
+
 class DebugModeMixin:
     def toggle_debug_mode(self):
         debug_mode = self.debug_mode_var.get()
@@ -81,8 +166,10 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         tk.Frame.__init__(self, master)
         self.config_manager = ConfigManager()
 
-        self.master.title(f"{project_name} Textures Updater {app_version}")
-        self.master.minsize(900, 720)
+        # Get the root window to set the title
+        root = self.winfo_toplevel()
+        root.title(f"{project_name} Textures Updater {app_version}")
+        # self.master.minsize(900, 720)
 
         # Initialize UI components
         self.debug_mode_var = tk.BooleanVar(value=self.config_manager.debug_mode)
@@ -389,8 +476,10 @@ class InstallerScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
         tk.Frame.__init__(self, master)
         self.config_manager = ConfigManager()
 
-        self.master.title(f"{project_name} Textures Installer {app_version}")
-        self.master.minsize(900, 800)
+        # Get the root window to set the title
+        root = self.winfo_toplevel()
+        root.title(f"{project_name} Textures Installer {app_version}")
+        # self.master.minsize(900, 800)
 
         # Create a boolean variable to store the checkbox state of debug_mode
         self.debug_mode_var = tk.BooleanVar(value=self.config_manager.debug_mode)
@@ -674,19 +763,96 @@ class MainApplication(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
+        # Set a reasonable initial size
+        self.geometry("900x740")
+        self.minsize(900, 640)
+
+        # Configure main window grid
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        # Create main container with grid weights
+        self.main_container = ttk.Frame(self)
+        self.main_container.grid(row=0, column=0, sticky="nsew")
+        self.main_container.grid_rowconfigure(0, weight=1)
+        self.main_container.grid_columnconfigure(0, weight=1)
+
+        # Create canvas and scrollbars
+        self.canvas = tk.Canvas(self.main_container)
+        self.vsb = ttk.Scrollbar(self.main_container, orient="vertical", command=self.canvas.yview)
+        self.hsb = ttk.Scrollbar(self.main_container, orient="horizontal", command=self.canvas.xview)
+        
+        # Configure canvas
+        self.canvas.configure(
+            yscrollcommand=self.vsb.set,
+            xscrollcommand=self.hsb.set,
+            yscrollincrement=5,
+            xscrollincrement=5
+        )
+        
+        # Create scrollable frame
+        self.scrollable_frame = ttk.Frame(self.canvas)
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        # Create window inside canvas
+        self.canvas_frame = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        
+        # Grid layout with proper weights
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.vsb.grid(row=0, column=1, sticky="ns")
+        self.hsb.grid(row=1, column=0, sticky="ew")
+        
+        # Configure grid weights for scrollbars
+        self.main_container.grid_rowconfigure(0, weight=1)
+        self.main_container.grid_columnconfigure(0, weight=1)
+
+        # Configure scrolling
+        self.bind_scroll()
+
         # Initialize current_frame attribute
         self.current_frame = None
 
         # Use the existing boolean variable initial_setup_done
         if not initial_setup_done:
-            # Initial setup not done, load InstallerScreen
             self.switch_frame(InstallerScreen)
         else:
-            # Initial setup done, load PostInstallScreen
             self.switch_frame(PostInstallScreen)
 
+        # Configure canvas resize
+        self.canvas.bind('<Configure>', self.on_canvas_configure)
+
+    def on_canvas_configure(self, event):
+        # Update the scrollable region when the canvas is resized
+        self.canvas.itemconfig(self.canvas_frame, width=event.width)
+
+    def bind_scroll(self):
+        # Mouse wheel scrolling
+        def _on_mousewheel(event):
+            self.canvas.yview_scroll(int(-1 * (event.delta/120)), "units")
+
+        def _on_scrollwheel(event):
+            if event.num == 4 or event.delta > 0:
+                self.canvas.yview_scroll(-1, "units")
+            elif event.num == 5 or event.delta < 0:
+                self.canvas.yview_scroll(1, "units")
+
+        # Bind for Windows/macOS
+        self.canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        # Bind for Linux
+        self.canvas.bind_all("<Button-4>", _on_scrollwheel)
+        self.canvas.bind_all("<Button-5>", _on_scrollwheel)
+        # Bind keyboard navigation
+        self.canvas.bind_all("<Up>", lambda e: self.canvas.yview_scroll(-1, "units"))
+        self.canvas.bind_all("<Down>", lambda e: self.canvas.yview_scroll(1, "units"))
+        self.canvas.bind_all("<Prior>", lambda e: self.canvas.yview_scroll(-1, "pages"))
+        self.canvas.bind_all("<Next>", lambda e: self.canvas.yview_scroll(1, "pages"))
+
     def switch_frame(self, frame_class):
-        new_frame = frame_class(self, lambda: self.switch_frame(PostInstallScreen if frame_class == InstallerScreen else InstallerScreen))
+        new_frame = frame_class(self.scrollable_frame, 
+                              lambda: self.switch_frame(PostInstallScreen if frame_class == InstallerScreen else InstallerScreen))
 
         if self.current_frame:
             self.current_frame.grid_forget()
