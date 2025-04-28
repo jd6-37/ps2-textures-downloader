@@ -13,8 +13,8 @@ from utils.helpers import load_config_new, save_config_new, ConfigManager
 from utils.sync import main_sync
 from utils.download_repo import download_repo_main
 
-app_version = "0.22-beta"
-app_version_num = 0.22
+app_version = "0.23-beta"
+app_version_num = 0.23
 
 config_manager = ConfigManager()
 
@@ -211,7 +211,6 @@ class PostInstallScreen(tk.Frame, DebugModeMixin, OnSaveButtonClickMixin):
             # Start thread as daemon
             thread = Thread(target=run_sync, daemon=True)
             thread.start()
-
 
 
         
