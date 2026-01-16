@@ -1,3 +1,4 @@
+customtkinter==5.2.2
 psutil==5.9.8
 aiohttp==3.9.3
 tenacity==8.2.3
