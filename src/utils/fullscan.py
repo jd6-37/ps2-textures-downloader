@@ -2,8 +2,7 @@ import os
 import sys
 import requests
 import tkinter as tk
-from tkinter import filedialog, messagebox
-from tkinter.scrolledtext import ScrolledText
+from tkinter import messagebox
 from datetime import datetime, timezone, timedelta
 from tzlocal import get_localzone
 import time
@@ -11,7 +10,7 @@ import pytz
 from urllib.parse import urljoin, quote
 
 # Import helper functions
-from utils.helpers import load_config_new, ConfigManager, remove_empty_folders, check_rate_limits, localize_reset_timestamp, get_and_print_local_time, format_time_difference, get_current_time
+from utils.helpers import load_config_new, ConfigManager, remove_empty_folders, check_rate_limits, localize_reset_timestamp, get_and_print_local_time, format_time_difference, get_current_time, ask_yes_no_threadsafe
 
 
 config_manager = ConfigManager()
@@ -508,16 +507,14 @@ def delete_files_not_in_repo(files_to_delete, terminal_text, dry_run=True):
 
     # Check if there are files to be deleted
     if files_to_delete:
-        terminal_text.insert(tk.END, "\nWAITING FOR YOUR RESPONSE IN THE POP-UP DIALAOG WINDOW...\n")
-        sys.stdout.flush()  # Force flush the output
         # Prompt the user to continue with deletion
         if not dry_run:
             confirmation_message = (
-                "Files were found to exist locally that are not in Github. These could cause issues. It is advised to delete them."
-                "\nIf they are your own custom files or DLC, move them to the 'user-customs' folder where they will be ignored."
-                f"\nThe {len(files_to_delete)} files listed in the output window WILL BE DELETED. Do you want to proceed?"
+                "Files were found to exist locally that are not in Github. These could cause issues. It is advised to delete them.\n\n"
+                "If they are your own custom files or DLC, move them to the 'user-customs' folder where they will be ignored.\n\n"
+                f"The {len(files_to_delete)} files listed in the output window WILL BE DELETED. Do you want to proceed?"
             )
-            confirmation = messagebox.askyesno("Confirmation", confirmation_message)
+            confirmation = ask_yes_no_threadsafe(terminal_text, "Confirm Deletion", confirmation_message)
 
             if confirmation:
                 # Delete files
@@ -529,14 +526,12 @@ def delete_files_not_in_repo(files_to_delete, terminal_text, dry_run=True):
                             os.remove(file_path)
                             deleted_files.append(file_path)
                         except Exception as e:
-                            messagebox.showerror("Error", f"Error deleting file {file_path}: {e}\n")
+                            terminal_text.insert(tk.END, f"Error deleting file {file_path}: {e}\n")
                     else:
-                        messagebox.showwarning("File Not Found", f"File not found: {file_path}\n")
+                        terminal_text.insert(tk.END, f"File not found: {file_path}\n")
 
 
                 # Print the list of deleted files
-                # terminal_text.insert(tk.END, "\nFiles deleted.\n\n")
-                # if debug_mode == True:
                 terminal_text.insert(tk.END, "\nDeleted these Files:\n\n")
                 for deleted_file in deleted_files:
                     terminal_text.insert(tk.END,  f"[-] {deleted_file}\n")
@@ -640,38 +635,37 @@ def download_files_not_in_local(files_to_download, terminal_text, dry_run=True):
 
     # Check if there are files to download
     if files_to_download:
-        terminal_text.insert(tk.END, "\nWAITING FOR YOUR RESPONSE IN THE POP-UP DIALAOG WINDOW...\n")
-        sys.stdout.flush()
         # Prompt the user to continue with downloading
         if not dry_run:
             confirmation_message = (
-                "You're missing files that are in the Github repo. This will cause issues! It is highly recommended that you download them now. See the output window for the list of files."
-                f"\nOkay to download the {len(files_to_download)} missing files?"
+                "You're missing files that are in the Github repo. This will cause issues!\n\n"
+                "It is highly recommended that you download them now. See the output window for the list of files.\n\n"
+                f"Okay to download the {len(files_to_download)} missing files?"
             )
-            confirmation = messagebox.askyesno("Confirmation", confirmation_message)
+            confirmation = ask_yes_no_threadsafe(terminal_text, "Confirm Download", confirmation_message)
 
             if confirmation:
                 terminal_text.insert(tk.END, "\nDownloading files:\n\n")
                 sys.stdout.flush()
-                terminal_text.yview(tk.END) 
+                terminal_text.yview(tk.END)
                 terminal_text.see(tk.END)
                 # Download files
                 download_missing_files(github_repo_url, local_directory, branch_name, files_to_download, github_token, terminal_text, debug_mode=True)
             else:
                 terminal_text.insert(tk.END, "\nDownload cancelled.\n\n")
                 sys.stdout.flush()
-                terminal_text.yview(tk.END) 
+                terminal_text.yview(tk.END)
                 terminal_text.see(tk.END)
         else:
             terminal_text.insert(tk.END, "\nDry Run. Download cancelled.\n\n")
             sys.stdout.flush()
-            terminal_text.yview(tk.END) 
+            terminal_text.yview(tk.END)
             terminal_text.see(tk.END)
     else:
         terminal_text.insert(tk.END, "\n*** No Missing Files to download ***", "\nYou have everything in the Github repo. Great!\n\n")
         terminal_text.insert(tk.END, "\n")
         sys.stdout.flush()
-        terminal_text.yview(tk.END) 
+        terminal_text.yview(tk.END)
         terminal_text.see(tk.END)
 
 
@@ -707,7 +701,7 @@ def run_scan_and_print_output(terminal_text):
     scroll_terminal()
 
     # Get the contents of the github repo root directory 
-    terminal_text.insert(tk.END, f"Analyzing Github repo directory structure...\n")
+    terminal_text.insert(tk.END, f"Analyzing Github repo directory structure (this will take a few minutes, be patient)...\n")
     terminal_text.insert(tk.END, "\n")
     scroll_terminal()
 

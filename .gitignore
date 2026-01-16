@@ -3,6 +3,7 @@
 ################################################
 
 src/repo/*
+config.txt
 config-*.txt
 *-BAK.*
 __pycache__

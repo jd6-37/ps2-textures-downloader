@@ -10,6 +10,105 @@ import shutil
 import argparse
 import pytz
 from urllib.parse import urljoin, quote
+import threading
+import customtkinter as ctk
+
+
+def ask_yes_no_threadsafe(parent_widget, title, message):
+    """
+    Show a yes/no dialog that works from background threads.
+    Uses the main thread to display the dialog and waits for the result.
+
+    Args:
+        parent_widget: Any widget from the application (used to get the root window)
+        title: Dialog title
+        message: Dialog message
+
+    Returns:
+        bool: True if user clicked Yes, False if No or closed the dialog
+    """
+    result = [None]  # Use a list to store result (mutable from inner function)
+    event = threading.Event()
+
+    def show_dialog():
+        # Get the root window
+        root = parent_widget.winfo_toplevel()
+
+        # Create a custom dialog window
+        dialog = ctk.CTkToplevel(root)
+        dialog.title(title)
+        dialog.geometry("500x220")
+        dialog.resizable(False, False)
+
+        # Make dialog on top but NOT modal (so user can still scroll the terminal)
+        dialog.transient(root)
+        # Note: removed grab_set() so the main window remains interactive
+        dialog.lift()
+        dialog.attributes('-topmost', True)
+        dialog.focus_force()
+
+        # Center the dialog on screen
+        dialog.update_idletasks()
+        x = (dialog.winfo_screenwidth() - dialog.winfo_width()) // 2
+        y = (dialog.winfo_screenheight() - dialog.winfo_height()) // 2
+        dialog.geometry(f"+{x}+{y}")
+
+        # Message label
+        label = ctk.CTkLabel(dialog, text=message, wraplength=450, justify="left")
+        label.pack(pady=20, padx=20)
+
+        # Button frame
+        button_frame = ctk.CTkFrame(dialog, fg_color="transparent")
+        button_frame.pack(pady=15)
+
+        def on_yes():
+            result[0] = True
+            dialog.destroy()
+            event.set()
+
+        def on_no():
+            result[0] = False
+            dialog.destroy()
+            event.set()
+
+        def on_close():
+            result[0] = False
+            dialog.destroy()
+            event.set()
+
+        # Handle window close button
+        dialog.protocol("WM_DELETE_WINDOW", on_close)
+
+        # Styled buttons using CTkButton to match the rest of the GUI
+        yes_btn = ctk.CTkButton(
+            button_frame,
+            text="Yes",
+            width=120,
+            height=40,
+            command=on_yes,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            cursor="hand2"
+        )
+        yes_btn.pack(side="left", padx=10)
+
+        no_btn = ctk.CTkButton(
+            button_frame,
+            text="No",
+            width=120,
+            height=40,
+            command=on_no,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            cursor="hand2"
+        )
+        no_btn.pack(side="left", padx=10)
+
+    # Schedule dialog on main thread
+    parent_widget.after(0, show_dialog)
+
+    # Wait for user response
+    event.wait()
+
+    return result[0]
 
 def load_config(config_path):
     config = {
